@@ -10,25 +10,25 @@ Flujo de la aplicación
 
 El flujo principal de la aplicación es:
 
-**Splash → Inicio → Registro → Home → Restaurante**
+Splash → Inicio → Registro → Home → Restaurante
 
 1. Splash
 
 Pantalla inicial de Foodly que muestra el logotipo de la aplicación.
 
-### 2. Inicio
+2. Inicio
 
 Presenta Foodly al usuario y permite comenzar a utilizar la aplicación.
 
-### 3. Registro
+3. Registro
 
 El usuario completa sus datos básicos para continuar.
 
-### 4. Home
+4. Home
 
 Muestra los restaurantes disponibles y algunas de sus características principales.
 
-### 5. Restaurante
+5. Restaurante
 
 Permite consultar información más detallada del restaurante seleccionado, como:
 
@@ -37,40 +37,40 @@ Permite consultar información más detallada del restaurante seleccionado, como
 - Ubicación
 - Productos destacados
 
-## 🎨 Diseño
+Diseño
 
 La interfaz de Foodly utiliza un diseño moderno, sencillo y enfocado en la experiencia del usuario.
 
-### Paleta de colores
+Paleta de colores
 
 - 🟠 Naranja: color principal de la aplicación.
 - ⚪ Blanco: utilizado como fondo y para generar limpieza visual.
 - ⚫ Gris oscuro: utilizado principalmente para textos.
 - ⚪ Gris claro: utilizado en algunos fondos y elementos secundarios.
 
-## 📸 Capturas de pantalla
+Capturas de pantalla
 
-### Splash
+Splash
 
-![Splash](capturas/01_splash.png)
+[Splash](capturas/01_splash.png)
 
-### Inicio
+Inicio
 
-![Inicio](capturas/02_inicio.png)
+[Inicio](capturas/02_inicio.png)
 
-### Registro
+Registro
 
-![Registro](capturas/03_registro.png)
+[Registro](capturas/03_registro.png)
 
-### Home
+Home
 
-![Home](capturas/04_home.png)
+[Home](capturas/04_home.png)
 
-### Restaurante
+Restaurante
 
-![Restaurante](capturas/05_restaurante.png)
+[Restaurante](capturas/05_restaurante.png)
 
-## 🛠️ Tecnologías utilizadas
+Tecnologías utilizadas
 
 - Android Studio
 - Kotlin
@@ -79,20 +79,20 @@ La interfaz de Foodly utiliza un diseño moderno, sencillo y enfocado en la expe
 - NestJS
 - MySQL
 
-## 🗄️ Base de datos
+Base de datos
 
 El proyecto general utiliza una base de datos MySQL llamada `saborapp`, que contiene información relacionada con usuarios, establecimientos, categorías, productos, pedidos y otros elementos del sistema.
 
-## 🔧 Backend
+Backend
 
 El backend del proyecto fue desarrollado utilizando NestJS.
 
 La estructura del proyecto permite trabajar con diferentes módulos relacionados con los usuarios, productos, pedidos y establecimientos.
 
-## 🎓 Contexto académico
+Contexto académico
 
 Proyecto desarrollado como parte del proceso académico de **Desarrollo de Software**, integrando conocimientos de desarrollo móvil, bases de datos y desarrollo backend.
 
-## 👨‍💻 Proyecto
+Proyecto
 
-**Foodly — Descubre nuevos sabores cerca de ti.**
+Foodly — Descubre nuevos sabores cerca de ti.

@@ -10,7 +10,7 @@ Flujo de la aplicación
 
 El flujo principal de la aplicación es:
 
-Splash → Inicio → Registro → Home → Restaurante
+Splash - Inicio - Registro - Home - Restaurante
 
 1. Splash
 

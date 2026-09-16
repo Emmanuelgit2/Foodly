@@ -1,18 +1,18 @@
-# 🍊 Foodly
+Foodly
 
 Foodly es una aplicación móvil desarrollada para facilitar el descubrimiento de propuestas gastronómicas. La aplicación permite a los usuarios conocer diferentes restaurantes, consultar información sobre sus propuestas de comida y explorar lugares según sus preferencias.
 
-## 🎯 Objetivo
+Objetivo
 
 El objetivo de Foodly es ofrecer una experiencia sencilla y visual para que las personas puedan descubrir restaurantes y conocer sus principales productos, categorías, ubicación y calificación.
 
-## 📱 Flujo de la aplicación
+Flujo de la aplicación
 
 El flujo principal de la aplicación es:
 
 **Splash → Inicio → Registro → Home → Restaurante**
 
-### 1. Splash
+1. Splash
 
 Pantalla inicial de Foodly que muestra el logotipo de la aplicación.
 

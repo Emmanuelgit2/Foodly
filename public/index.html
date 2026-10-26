@@ -9,9 +9,10 @@
 
     <link rel="stylesheet" href="style.css">
 
-    <!-- Librerías de Google Sign-In y reCAPTCHA -->
+    <!-- SDKs Oficiales: Google Sign-In, reCAPTCHA y Microsoft Entra ID (MSAL.js) -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="https://alcdn.msauth.net/browser/2.35.0/js/msal-browser.min.js"></script>
 </head>
 
 <body>
@@ -57,6 +58,12 @@
                  data-callback="handleGoogleLogin">
             </div>
             <div class="g_id_signin" data-type="standard" data-width="100%"></div>
+
+            <!-- BOTÓN OFICIAL MICROSOFT SSO -->
+            <button type="button" class="boton-microsoft" onclick="iniciarSesionMicrosoft()">
+                <svg viewBox="0 0 23 23" class="icono-ms"><path fill="#f35325" d="M1 1h10v10H1z"/><path fill="#81bc06" d="M12 1h10v10H12z"/><path fill="#05a6f0" d="M1 12h10v10H1z"/><path fill="#ffba08" d="M12 12h10v10H12z"/></svg>
+                Iniciar sesión con Microsoft
+            </button>
 
             <p class="texto-registro">¿No tienes una cuenta?</p>
 
@@ -137,7 +144,7 @@
         <!-- INICIO -->
         <main id="seccion-inicio" class="seccion-home">
 
-            <!-- RECUADRO MEJORADO DE BIENVENIDA -->
+            <!-- RECUADRO DE BIENVENIDA -->
             <div class="encabezado-feed-card">
                 <span class="etiqueta-foodly">FOODLY</span>
                 <h1>Descubre nuevos sabores</h1>

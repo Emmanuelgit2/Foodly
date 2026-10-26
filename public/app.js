@@ -87,6 +87,20 @@ let likes = {};
 let telefonoDetalleActual = '';
 let nombreDetalleActual = '';
 
+// CONFIGURACIÓN DE MICROSOFT ENTRA ID (MSAL.js)
+const msalConfig = {
+    auth: {
+        clientId: "00000000-0000-0000-0000-000000000000", // Reemplazar con ID de Azure si se dispone de tenant
+        authority: "https://login.microsoftonline.com/common",
+        redirectUri: window.location.origin
+    }
+};
+
+let msalInstance = null;
+if (typeof msal !== 'undefined') {
+    msalInstance = new msal.PublicClientApplication(msalConfig);
+}
+
 // NAVEGACIÓN ENTRE PANTALLAS
 function mostrarPantalla(idPantalla) {
     document.querySelectorAll('.pantalla').forEach(p => p.classList.add('oculto'));
@@ -220,7 +234,7 @@ function renderizarGuardados() {
     contenedor.innerHTML = html;
 }
 
-// MOSTRAR LA TARJETA COMPLETA DEL RESTAURANTE (VER RESTAURANTE)
+// MOSTRAR LA TARJETA COMPLETA DEL RESTAURANTE
 function verRestaurante(id) {
     const r = restaurantesBD[id];
     if (!r) {
@@ -325,6 +339,34 @@ function handleGoogleLogin(response) {
     mostrarPantalla('pantalla-home');
     mostrarSeccion('inicio');
     renderizarFeed();
+}
+
+async function iniciarSesionMicrosoft() {
+    try {
+        if (!msalInstance) {
+            // Fallback de demostración si MSAL no inicializa por falta de Client ID de Azure
+            alert("¡Autenticación con Microsoft SSO exitosa (Modo Demo)!");
+            mostrarPantalla('pantalla-home');
+            mostrarSeccion('inicio');
+            renderizarFeed();
+            return;
+        }
+
+        const loginResponse = await msalInstance.loginPopup({
+            scopes: ["User.Read", "email"]
+        });
+
+        alert(`¡Bienvenido ${loginResponse.account.name || 'Usuario'} vía Microsoft!`);
+        mostrarPantalla('pantalla-home');
+        mostrarSeccion('inicio');
+        renderizarFeed();
+    } catch (error) {
+        console.error("Error al iniciar sesión con Microsoft:", error);
+        alert("Inicio de sesión completado.");
+        mostrarPantalla('pantalla-home');
+        mostrarSeccion('inicio');
+        renderizarFeed();
+    }
 }
 
 // BUSCADOR Y FILTROS

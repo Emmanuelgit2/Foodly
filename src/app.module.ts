@@ -1,53 +1,26 @@
-
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-
-import { Usuario } from './entities/usuario.entity';
-import { Establecimiento } from './entities/establecimiento.entity';
-import { Categoria } from './entities/categoria.entity';
-import { Producto } from './entities/producto.entity';
-import { Calificacion } from './entities/calificacion.entity';
-import { UsuariosModule } from './usuarios/usuarios.module';
-import { ProductosModule } from './productos/productos.module';
-import { EstablecimientosModule } from './establecimientos/establecimientos.module';
+import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './auth/auth.module';
+import { RestaurantesModule } from './restaurantes/restaurantes.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: '.env',
+    // Configuración global de variables de entorno (.env)
+    ConfigModule.forRoot({ 
+      isGlobal: true 
     }),
-
-    TypeOrmModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'mysql' as const,
-        host: configService.get<string>('DB_HOST', 'localhost'),
-        port: Number(configService.get<string>('DB_PORT', '3306')),
-        username: configService.get<string>('DB_USERNAME'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_DATABASE', 'saborapp'),
-        entities: [
-          Usuario,
-          Establecimiento,
-          Categoria,
-          Producto,
-          Calificacion,
-        ],
-        synchronize: false,
-      }),
-    }),
-
-    UsuariosModule,
-    ProductosModule,
-    EstablecimientosModule,
+    
+    // Conexión a la base de datos NoSQL MongoDB (docker-compose o local)
+    MongooseModule.forRoot(
+      process.env.MONGO_URI || 'mongodb://localhost:27017/foodlydb'
+    ),
+    
+    // Módulos de la aplicación
+    AuthModule,
+    RestaurantesModule,
   ],
-
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

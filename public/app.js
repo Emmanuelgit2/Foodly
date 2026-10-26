@@ -1,4 +1,4 @@
-// BASE DE DATOS DE RESTAURANTES CON FOTOS DE PERFIL Y PLATOS
+// BASE DE DATOS LOCAL DE RESPALDO (FALLBACK EN CASO DE QUE LA API NO RESPONDA)
 const restaurantesBD = {
     'Sabor Paisa': {
         id: 'Sabor Paisa',
@@ -86,11 +86,12 @@ let guardados = [];
 let likes = {};
 let telefonoDetalleActual = '';
 let nombreDetalleActual = '';
+let restaurantesCargadosAPI = [];
 
 // CONFIGURACIÓN DE MICROSOFT ENTRA ID (MSAL.js)
 const msalConfig = {
     auth: {
-        clientId: "00000000-0000-0000-0000-000000000000", // Reemplazar con ID de Azure si se dispone de tenant
+        clientId: "00000000-0000-0000-0000-000000000000",
         authority: "https://login.microsoftonline.com/common",
         redirectUri: window.location.origin
     }
@@ -122,64 +123,95 @@ function cerrarSesion() {
     mostrarPantalla('pantalla-login');
 }
 
-// RENDERIZAR EL FEED PRINCIPAL
-function renderizarFeed() {
+// RENDERIZAR FEED DESDE API NOSQL (NESTJS / MONGODB)
+async function renderizarFeed() {
     const contenedor = document.getElementById('feed-restaurantes');
     const contenedorSeccion = document.getElementById('lista-restaurantes-seccion');
     if (!contenedor) return;
 
-    let html = '';
-    Object.values(restaurantesBD).forEach(r => {
-        const isLiked = likes[r.id];
-        const isSaved = guardados.includes(r.id);
+    try {
+        const respuesta = await fetch('/api/establecimientos');
+        const listaRestaurantes = await respuesta.json();
 
-        html += `
-            <article class="post-restaurante" data-categoria="${r.categoriaKey}">
-                <div class="post-cabecera">
-                    <div class="avatar-restaurante-wrapper">
-                        <img src="${r.fotoPerfil}" class="avatar-img" alt="${r.nombre}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                        <div class="avatar-restaurante-fallback" style="display:none;">${r.avatarText}</div>
+        // Si la base de datos NoSQL devuelve registros los usamos, de lo contrario usamos la base local de respaldo
+        const datos = (Array.isArray(listaRestaurantes) && listaRestaurantes.length > 0)
+            ? listaRestaurantes
+            : Object.values(restaurantesBD);
+
+        restaurantesCargadosAPI = datos;
+
+        let html = '';
+        datos.forEach(r => {
+            const idRest = r._id || r.id;
+            const isLiked = likes[idRest];
+            const isSaved = guardados.includes(idRest);
+            const catKey = r.categoriaKey || (r.categoria ? r.categoria.toLowerCase() : 'todos');
+
+            html += `
+                <article class="post-restaurante" data-categoria="${catKey}">
+                    <div class="post-cabecera">
+                        <div class="avatar-restaurante-wrapper">
+                            <img src="${r.fotoPerfil || ''}" class="avatar-img" alt="${r.nombre}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="avatar-restaurante-fallback" style="display:none;">${r.avatarText || 'FD'}</div>
+                        </div>
+                        <div class="info-restaurante">
+                            <strong>${r.nombre}</strong>
+                            <span>📍 ${r.ubicacion}</span>
+                        </div>
                     </div>
-                    <div class="info-restaurante">
-                        <strong>${r.nombre}</strong>
-                        <span>📍 ${r.ubicacion}</span>
+
+                    <div class="imagen-comida">
+                        <img src="${r.imagenFondo || ''}" alt="${r.nombre}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600'">
                     </div>
-                </div>
 
-                <div class="imagen-comida">
-                    <img src="${r.imagenFondo}" alt="${r.nombre}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600'">
-                </div>
+                    <div class="acciones-post">
+                        <button class="btn-icon ${isLiked ? 'liked' : ''}" onclick="toggleLike('${idRest}', this)" title="Me gusta">
+                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        </button>
+                        <button class="btn-icon" onclick="abrirComentario('${r.nombre}')" title="Comentar">
+                            <svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg>
+                        </button>
+                        <button class="btn-icon" onclick="compartirPost('${r.nombre}')" title="Compartir">
+                            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                        </button>
+                        <button class="btn-icon btn-guardar-ig ${isSaved ? 'saved' : ''}" onclick="toggleGuardar('${idRest}', this)" title="Guardar">
+                            <svg viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
+                        </button>
+                    </div>
 
-                <div class="acciones-post">
-                    <button class="btn-icon ${isLiked ? 'liked' : ''}" onclick="toggleLike('${r.id}', this)" title="Me gusta">
-                        <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                    </button>
-                    <button class="btn-icon" onclick="abrirComentario('${r.id}')" title="Comentar">
-                        <svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg>
-                    </button>
-                    <button class="btn-icon" onclick="compartirPost('${r.nombre}')" title="Compartir">
-                        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-                    </button>
-                    <button class="btn-icon btn-guardar-ig ${isSaved ? 'saved' : ''}" onclick="toggleGuardar('${r.id}', this)" title="Guardar">
-                        <svg viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
-                    </button>
-                </div>
+                    <div class="contenido-post">
+                        <div class="calificacion-post">⭐ ${r.calificacion}</div>
+                        <h2>${r.nombre}</h2>
+                        <p>${r.descripcion}</p>
+                        <div class="grupo-acciones-card">
+                            <button class="boton-principal" onclick="verRestaurante('${idRest}')">Ver restaurante →</button>
+                            <button class="boton-whatsapp" onclick="abrirWhatsApp('${r.whatsapp}', '${r.nombre}')">💬 WhatsApp</button>
+                        </div>
+                    </div>
+                </article>
+            `;
+        });
 
-                <div class="contenido-post">
-                    <div class="calificacion-post">⭐ ${r.calificacion}</div>
-                    <h2>${r.nombre}</h2>
-                    <p>${r.descripcion}</p>
-                    <div class="grupo-acciones-card">
+        contenedor.innerHTML = html;
+        if (contenedorSeccion) contenedorSeccion.innerHTML = html;
+
+    } catch (error) {
+        console.warn("API NestJS no disponible, usando fallback local:", error);
+        restaurantesCargadosAPI = Object.values(restaurantesBD);
+        let htmlFallback = '';
+        Object.values(restaurantesBD).forEach(r => {
+            htmlFallback += `
+                <article class="post-restaurante" data-categoria="${r.categoriaKey}">
+                    <div class="contenido-post" style="padding-top:16px;">
+                        <h2>${r.nombre}</h2>
+                        <p>${r.descripcion}</p>
                         <button class="boton-principal" onclick="verRestaurante('${r.id}')">Ver restaurante →</button>
-                        <button class="boton-whatsapp" onclick="abrirWhatsApp('${r.whatsapp}', '${r.nombre}')">💬 WhatsApp</button>
                     </div>
-                </div>
-            </article>
-        `;
-    });
-
-    contenedor.innerHTML = html;
-    if (contenedorSeccion) contenedorSeccion.innerHTML = html;
+                </article>
+            `;
+        });
+        contenedor.innerHTML = htmlFallback;
+    }
 }
 
 function toggleLike(id, btn) {
@@ -218,14 +250,14 @@ function renderizarGuardados() {
 
     let html = '';
     guardados.forEach(id => {
-        const r = restaurantesBD[id];
+        const r = restaurantesCargadosAPI.find(item => (item._id === id || item.id === id)) || restaurantesBD[id];
         if (r) {
             html += `
                 <article class="post-restaurante">
                     <div class="contenido-post" style="padding-top:16px;">
                         <h2>${r.nombre}</h2>
                         <p>${r.descripcion}</p>
-                        <button class="boton-principal" onclick="verRestaurante('${r.id}')">Ver tarjeta →</button>
+                        <button class="boton-principal" onclick="verRestaurante('${r._id || r.id}')">Ver tarjeta →</button>
                     </div>
                 </article>
             `;
@@ -234,9 +266,9 @@ function renderizarGuardados() {
     contenedor.innerHTML = html;
 }
 
-// MOSTRAR LA TARJETA COMPLETA DEL RESTAURANTE
+// DETALLE DEL RESTAURANTE
 function verRestaurante(id) {
-    const r = restaurantesBD[id];
+    const r = restaurantesCargadosAPI.find(item => (item._id === id || item.id === id)) || restaurantesBD[id];
     if (!r) {
         alert("Restaurante no encontrado.");
         return;
@@ -255,29 +287,30 @@ function verRestaurante(id) {
     const logoText = document.getElementById('detalle-avatar-text');
     logoImg.style.display = 'block';
     logoText.style.display = 'none';
-    logoImg.src = r.fotoPerfil;
-    logoText.innerText = r.avatarText;
+    logoImg.src = r.fotoPerfil || '';
+    logoText.innerText = r.avatarText || 'FD';
 
     const banner = document.getElementById('detalle-banner');
-    banner.src = r.imagenFondo;
+    banner.src = r.imagenFondo || '';
     banner.onerror = function() {
         this.src = 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800';
     };
 
-    // Renderizar lista de platos
     const contenedorPlatos = document.getElementById('detalle-platos');
     let htmlPlatos = '';
-    r.platos.forEach(p => {
-        htmlPlatos += `
-            <div class="plato-card">
-                <div class="plato-header">
-                    <strong>${p.nombre}</strong>
-                    <span class="plato-precio">${p.precio}</span>
+    if (r.platos && r.platos.length > 0) {
+        r.platos.forEach(p => {
+            htmlPlatos += `
+                <div class="plato-card">
+                    <div class="plato-header">
+                        <strong>${p.nombre}</strong>
+                        <span class="plato-precio">${p.precio}</span>
+                    </div>
+                    <p>${p.desc}</p>
                 </div>
-                <p>${p.desc}</p>
-            </div>
-        `;
-    });
+            `;
+        });
+    }
     contenedorPlatos.innerHTML = htmlPlatos;
 
     telefonoDetalleActual = r.whatsapp;
@@ -305,14 +338,46 @@ function abrirWhatsAppDesdeDetalle() {
     abrirWhatsApp(telefonoDetalleActual, nombreDetalleActual);
 }
 
-// AUTENTICACIÓN
-function iniciarSesion(event) {
+// AUTENTICACIÓN LOCAL / CAPTCHA / SSO
+async function iniciarSesion(event) {
     event.preventDefault();
 
     const captchaRes = grecaptcha.getResponse(0);
     if (!captchaRes) {
         alert("⚠️ Completa la casilla 'No soy un robot' para continuar.");
         return;
+    }
+
+    const correo = document.getElementById('login-correo').value;
+    const contrasena = document.getElementById('login-contrasena').value;
+
+    try {
+        // Petición al endpoint NestJS de autenticación
+        const res = await fetch('/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ correo, contrasena })
+        });
+        const data = await res.json();
+
+        if (data.mfaRequired) {
+            const mfaCode = prompt(`${data.message}\n\nIngresa el código MFA (Usa 123456):`);
+            if (!mfaCode) return;
+
+            const resMfa = await fetch('/auth/mfa/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mfaSessionToken: data.mfaSessionToken, code: mfaCode })
+            });
+            const dataMfa = await resMfa.json();
+
+            if (dataMfa.access_token) {
+                localStorage.setItem('jwt_token', dataMfa.access_token);
+                alert("¡Autenticación exitosa! Token JWT emitido.");
+            }
+        }
+    } catch (err) {
+        console.warn("Backend local offline, continuando en modo cliente:", err);
     }
 
     mostrarPantalla('pantalla-home');
@@ -344,7 +409,6 @@ function handleGoogleLogin(response) {
 async function iniciarSesionMicrosoft() {
     try {
         if (!msalInstance) {
-            // Fallback de demostración si MSAL no inicializa por falta de Client ID de Azure
             alert("¡Autenticación con Microsoft SSO exitosa (Modo Demo)!");
             mostrarPantalla('pantalla-home');
             mostrarSeccion('inicio');
@@ -362,14 +426,13 @@ async function iniciarSesionMicrosoft() {
         renderizarFeed();
     } catch (error) {
         console.error("Error al iniciar sesión con Microsoft:", error);
-        alert("Inicio de sesión completado.");
         mostrarPantalla('pantalla-home');
         mostrarSeccion('inicio');
         renderizarFeed();
     }
 }
 
-// BUSCADOR Y FILTROS
+// FILTROS Y BUSCADOR
 function filtrarCategoria(cat, btn) {
     document.querySelectorAll('.categoria').forEach(b => b.classList.remove('categoria-activa'));
     btn.classList.add('categoria-activa');
@@ -399,7 +462,7 @@ function cambiarUbicacion() {
     alert("Ubicación actual: Bello, Antioquia.");
 }
 
-// AL CARGAR LA PÁGINA
+// INICIALIZACIÓN
 window.addEventListener('DOMContentLoaded', () => {
     mostrarPantalla('pantalla-login');
 });

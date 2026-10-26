@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  # Servidor Backend Foodly (NestJS)
+  foodly-api:
+    build: .
+    container_name: foodly_app
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - MONGO_URI=mongodb://mongo:27017/foodlydb
+    depends_on:
+      - mongo
+    restart: always
+
+  # Base de Datos NoSQL (MongoDB)
+  mongo:
+    image: mongo:latest
+    container_name: foodly_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: always
+
+volumes:
+  mongo_data:

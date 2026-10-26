@@ -2,46 +2,45 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
+/* FONDO LIGERAMENTE MÁS OSCURO PARA MEJOR CONTRASTE */
 body {
-    background-color: #f4f6f8;
-    color: #333;
+    background: #e9ecef;
+    color: #1c1e21;
 }
 
 .oculto {
     display: none !important;
 }
 
-/* PANTALLAS Y FORMULARIOS */
 .pantalla {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
 
-.tarjeta-bienvenida, .tarjeta-formulario {
-    background: white;
+/* FORMULARIOS LOGIN / REGISTRO */
+.tarjeta-formulario {
+    background: #ffffff;
     max-width: 400px;
     margin: auto;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    padding: 35px 30px;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
     text-align: center;
     width: 90%;
+    border: 1px solid #ced4da;
 }
 
 .logo-foodly {
-    font-size: 32px;
-    font-weight: bold;
+    font-size: 38px;
+    font-weight: 800;
     color: #ff5722;
-    margin-bottom: 10px;
-}
-
-.subtitulo {
-    color: #777;
-    margin-bottom: 20px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    user-select: none;
 }
 
 form {
@@ -52,31 +51,44 @@ form {
 }
 
 label {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
+    color: #495057;
 }
 
 input {
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 14px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
     font-size: 14px;
+    background: #f8f9fa;
 }
 
-/* BOTONES */
+input:focus {
+    outline: none;
+    border-color: #ff5722;
+    background: #ffffff;
+}
+
+.contenedor-recaptcha {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0 15px;
+}
+
 .boton-principal {
     background-color: #ff5722;
     color: white;
     border: none;
-    padding: 12px;
-    border-radius: 6px;
+    padding: 12px 16px;
+    border-radius: 8px;
     cursor: pointer;
-    font-weight: bold;
+    font-weight: 600;
     width: 100%;
-    margin-top: 10px;
     transition: background 0.2s;
+    font-size: 14px;
 }
 
 .boton-principal:hover {
@@ -84,76 +96,19 @@ input {
 }
 
 .boton-secundario {
-    background-color: transparent;
+    background: transparent;
     color: #ff5722;
-    border: 1px solid #ff5722;
+    border: 1.5px solid #ff5722;
     padding: 10px;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
-    font-weight: bold;
+    font-weight: 600;
     width: 100%;
     margin-top: 10px;
 }
 
-.boton-directo {
-    background: none;
-    border: none;
-    color: #666;
-    margin-top: 15px;
-    cursor: pointer;
-    text-decoration: underline;
-    font-size: 13px;
-    width: 100%;
-}
-
-.boton-regresar {
-    background: none;
-    border: none;
-    color: #ff5722;
-    cursor: pointer;
-    font-weight: bold;
-    float: left;
-}
-
-/* BOTÓN DE WHATSAPP */
-.boton-whatsapp {
-    background-color: #25D366;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.2s;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-}
-
-.boton-whatsapp:hover {
-    background-color: #128C7E;
-}
-
-.grupo-acciones-card {
-    display: flex;
-    gap: 10px;
-    margin-top: 15px;
-}
-
-.grupo-acciones-card .boton-principal {
-    margin-top: 0;
-}
-
-/* CAPTCHA Y SEPARADORES */
-.contenedor-recaptcha {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 15px;
-}
-
 .separador-o {
-    margin: 15px 0;
+    margin: 18px 0;
     text-align: center;
     position: relative;
 }
@@ -162,103 +117,441 @@ input {
     content: "";
     position: absolute;
     top: 50%;
-    left: 0;
-    right: 0;
+    left: 0; right: 0;
     height: 1px;
-    background: #ddd;
-    z-index: 1;
+    background: #ced4da;
 }
 
 .separador-o span {
     background: white;
     padding: 0 10px;
     position: relative;
-    z-index: 2;
-    color: #888;
+    color: #6c757d;
     font-size: 12px;
 }
 
-/* NAVBAR Y CONTENIDO */
+/* NAVBAR Y NAVEGACIÓN */
 .navbar {
-    background: white;
-    padding: 15px 20px;
+    background: linear-gradient(135deg, #ff5722 0%, #ff7043 100%);
+    padding: 14px 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 12px rgba(255, 87, 34, 0.3);
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
 .navbar-logo {
-    font-size: 24px;
-    font-weight: bold;
-    color: #ff5722;
+    font-size: 26px;
+    font-weight: 800;
+    color: #ffffff;
+    cursor: pointer;
+    letter-spacing: -0.5px;
+    transition: transform 0.2s;
+}
+
+.navbar-logo:hover {
+    transform: scale(1.04);
 }
 
 .navbar-menu button {
     background: none;
     border: none;
-    margin-left: 10px;
+    margin-left: 12px;
     cursor: pointer;
     font-weight: 600;
-    color: #555;
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 14px;
 }
 
+.navbar-menu .btn-salir {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 6px 14px;
+    border-radius: 20px;
+}
+
+/* ENCABEZADO "DESCUBRE NUEVOS SABORES" EN RECUADRO */
 .seccion-home {
-    max-width: 600px;
+    max-width: 520px;
     margin: 20px auto;
-    padding: 0 15px;
+    padding: 0 12px;
 }
 
-.post-restaurante {
-    background: white;
-    border-radius: 12px;
+.encabezado-feed-card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid #ced4da;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     margin-bottom: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    text-align: left;
+}
+
+.etiqueta-foodly {
+    background: #ffebe5;
+    color: #ff5722;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.encabezado-feed-card h1 {
+    font-size: 22px;
+    margin: 8px 0 4px;
+    color: #1c1e21;
+}
+
+.encabezado-feed-card p {
+    font-size: 14px;
+    color: #6c757d;
+}
+
+/* POSTS DEL FEED */
+.post-restaurante {
+    background: #ffffff;
+    border-radius: 16px;
+    margin-bottom: 24px;
     overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    border: 1px solid #ced4da;
 }
 
 .post-cabecera {
     display: flex;
     align-items: center;
-    padding: 15px;
+    padding: 14px;
 }
 
-.avatar-restaurante {
-    width: 40px;
-    height: 40px;
+.avatar-restaurante-wrapper {
+    width: 44px;
+    height: 44px;
+    margin-right: 12px;
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
-    background: #ff5722;
+    object-fit: cover;
+    border: 1px solid #dee2e6;
+}
+
+.avatar-restaurante-fallback {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff5722, #ff8a65);
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    margin-right: 10px;
+    font-size: 14px;
+}
+
+.info-restaurante strong {
+    display: block;
+    font-size: 15px;
+    color: #1c1e21;
+}
+
+.info-restaurante span {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.imagen-comida {
+    width: 100%;
+    height: 290px;
+    background: #dee2e6;
+}
+
+.imagen-comida img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* BOTONES ESTILO INSTAGRAM */
+.acciones-post {
+    display: flex;
+    align-items: center;
+    padding: 12px 14px;
+    gap: 14px;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.btn-icon svg {
+    width: 26px;
+    height: 26px;
+    fill: none;
+    stroke: #1c1e21;
+    stroke-width: 2;
+    transition: transform 0.1s ease;
+}
+
+.btn-icon:hover svg {
+    transform: scale(1.1);
+}
+
+.btn-icon.liked svg {
+    fill: #ed4956;
+    stroke: #ed4956;
+}
+
+.btn-guardar-ig {
+    margin-left: auto;
+}
+
+.btn-guardar-ig.saved svg {
+    fill: #1c1e21;
 }
 
 .contenido-post {
-    padding: 15px;
+    padding: 0 14px 16px;
+}
+
+.calificacion-post {
+    font-size: 13px;
+    font-weight: 700;
+    color: #d84315;
+    margin-bottom: 4px;
+}
+
+.contenido-post h2 {
+    font-size: 17px;
+    margin-bottom: 6px;
+}
+
+.contenido-post p {
+    font-size: 14px;
+    color: #495057;
+    margin-bottom: 14px;
+    line-height: 1.4;
+}
+
+.grupo-acciones-card {
+    display: flex;
+    gap: 10px;
+}
+
+.boton-whatsapp {
+    background-color: #25D366;
+    color: white;
+    border: none;
+    padding: 11px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 14px;
+}
+
+.boton-whatsapp:hover {
+    background-color: #128C7E;
+}
+
+/* TARJETA DE PRESENTACIÓN DE RESTAURANTE */
+.tarjeta-presentacion {
+    background: #ffffff;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 15px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #ced4da;
+}
+
+.portada-restaurante {
+    position: relative;
+    height: 200px;
+}
+
+.portada-restaurante img#detalle-banner {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-perfil-img {
+    position: absolute;
+    bottom: -24px;
+    left: 20px;
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    border: 4px solid #ffffff;
+    object-fit: cover;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.avatar-perfil-restaurante {
+    position: absolute;
+    bottom: -24px;
+    left: 20px;
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff5722, #ff8a65);
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid #ffffff;
+}
+
+.cuerpo-presentacion {
+    padding: 34px 22px 22px;
+}
+
+.encabezado-presentacion {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.categoria-badge {
+    display: inline-block;
+    background: #ffebe5;
+    color: #ff5722;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.calificacion-badge {
+    background: #fff3e0;
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 15px;
+    color: #e65100;
+}
+
+.descripcion-presentacion {
+    color: #495057;
+    margin-bottom: 18px;
+    line-height: 1.5;
+}
+
+.grid-datos {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    background: #f8f9fa;
+    padding: 14px;
+    border-radius: 12px;
+    margin-bottom: 22px;
+    font-size: 13.5px;
+    border: 1px solid #e9ecef;
+}
+
+.titulo-platos {
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: #1c1e21;
+}
+
+.grid-platos {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.plato-card {
+    border: 1px solid #dee2e6;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: #ffffff;
+}
+
+.plato-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.plato-precio {
+    color: #ff5722;
+    font-weight: 700;
+}
+
+.plato-card p {
+    font-size: 13px;
+    color: #6c757d;
+}
+
+/* BUSCADOR Y FILTROS */
+.barra-busqueda {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.barra-busqueda input {
+    flex: 1;
+    margin-bottom: 0;
+    background: #ffffff;
 }
 
 .categorias {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     overflow-x: auto;
-    padding-bottom: 10px;
-    margin-bottom: 15px;
+    padding-bottom: 8px;
+    margin-bottom: 18px;
 }
 
 .categoria {
-    background: white;
-    border: 1px solid #ddd;
-    padding: 8px 15px;
+    background: #ffffff;
+    border: 1px solid #ced4da;
+    padding: 8px 16px;
     border-radius: 20px;
     cursor: pointer;
+    font-size: 13px;
     white-space: nowrap;
+    font-weight: 600;
+    color: #495057;
 }
 
 .categoria-activa {
     background: #ff5722;
     color: white;
     border-color: #ff5722;
+}
+
+.boton-regresar-inline {
+    background: #ffffff;
+    border: 1px solid #ced4da;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 10px;
+}
+
+.texto-vacio {
+    text-align: center;
+    padding: 30px;
+    color: #6c757d;
 }

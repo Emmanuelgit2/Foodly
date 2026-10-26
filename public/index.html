@@ -9,121 +9,41 @@
 
     <link rel="stylesheet" href="style.css">
 
-    <!-- Librerías oficiales de Google (Google Sign-In y reCAPTCHA v2) -->
+    <!-- Librerías de Google Sign-In y reCAPTCHA -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-
 </head>
 
 <body>
 
     <!-- ========================= -->
-    <!-- PANTALLA DE BIENVENIDA -->
+    <!-- LOGIN (PANTALLA DE INICIO OBLIGATORIA) -->
     <!-- ========================= -->
 
-    <section id="pantalla-bienvenida" class="pantalla oculto">
-
-        <div class="tarjeta-bienvenida">
-
-            <div class="logo-foodly">
-                Foodly
-            </div>
-
-            <p class="subtitulo">
-                Descubre nuevos sabores
-            </p>
-
-            <p class="texto-bienvenida">
-                Encuentra restaurantes, descubre nuevos platos
-                y conoce los mejores sabores cerca de ti.
-            </p>
-
-            <button
-                class="boton-principal"
-                onclick="mostrarPantalla('pantalla-login')"
-            >
-                Iniciar sesión
-            </button>
-
-            <button
-                class="boton-secundario"
-                onclick="mostrarPantalla('pantalla-registro')"
-            >
-                Crear cuenta
-            </button>
-
-            <button
-                class="boton-directo"
-                onclick="entrarDirectamente()"
-            >
-                Entrar directamente a Foodly
-            </button>
-
-        </div>
-
-    </section>
-
-
-    <!-- ========================= -->
-    <!-- LOGIN -->
-    <!-- ========================= -->
-
-    <section id="pantalla-login" class="pantalla oculto">
+    <section id="pantalla-login" class="pantalla">
 
         <div class="tarjeta-formulario">
 
-            <button
-                class="boton-regresar"
-                onclick="mostrarPantalla('pantalla-bienvenida')"
-            >
-                ← Inicio
-            </button>
-
-            <div class="logo-foodly">
-                Foodly
-            </div>
+            <div class="logo-foodly" onclick="mostrarPantalla('pantalla-login')">Foodly</div>
 
             <h2>Bienvenido de nuevo</h2>
 
-            <p class="texto-formulario">
-                Ingresa para descubrir nuevos sabores.
-            </p>
+            <p class="texto-formulario">Ingresa para descubrir nuevos sabores.</p>
 
             <form id="form-login" onsubmit="iniciarSesion(event)">
 
-                <label for="login-correo">
-                    Correo electrónico
-                </label>
+                <label for="login-correo">Correo electrónico</label>
+                <input type="email" id="login-correo" placeholder="correo@ejemplo.com" required>
 
-                <input
-                    type="email"
-                    id="login-correo"
-                    placeholder="correo@ejemplo.com"
-                    required
-                >
+                <label for="login-contrasena">Contraseña</label>
+                <input type="password" id="login-contrasena" placeholder="Contraseña" required>
 
-                <label for="login-contrasena">
-                    Contraseña
-                </label>
-
-                <input
-                    type="password"
-                    id="login-contrasena"
-                    placeholder="Contraseña"
-                    required
-                >
-
-                <!-- reCAPTCHA GOOGLE EN LOGIN -->
+                <!-- reCAPTCHA OBLIGATORIO CON SITE KEY REAL -->
                 <div class="contenedor-recaptcha">
                     <div class="g-recaptcha" data-sitekey="6LdKLwIuAAAAADWNwY1jp-eHayZgeJhOumkFc37a"></div>
                 </div>
 
-                <button
-                    type="submit"
-                    class="boton-principal"
-                >
-                    Iniciar sesión
-                </button>
+                <button type="submit" class="boton-principal">Iniciar sesión</button>
 
             </form>
 
@@ -131,29 +51,16 @@
                 <span>o continúa con</span>
             </div>
 
-            <!-- BOTÓN OFICIAL GOOGLE LOGIN -->
+            <!-- BOTÓN OFICIAL GOOGLE LOGIN CON CLIENT ID REAL -->
             <div id="g_id_onload"
                  data-client_id="46704747268-c0vgolsbqbhh10b89en9cug1jc34utpe.apps.googleusercontent.com"
                  data-callback="handleGoogleLogin">
             </div>
             <div class="g_id_signin" data-type="standard" data-width="100%"></div>
 
-            <button
-                type="button"
-                class="boton-directo"
-                onclick="entrarDirectamente()"
-            >
-                Entrar directamente a Foodly
-            </button>
+            <p class="texto-registro">¿No tienes una cuenta?</p>
 
-            <p class="texto-registro">
-                ¿No tienes una cuenta?
-            </p>
-
-            <button
-                class="boton-secundario"
-                onclick="mostrarPantalla('pantalla-registro')"
-            >
+            <button class="boton-secundario" onclick="mostrarPantalla('pantalla-registro')">
                 Crear cuenta
             </button>
 
@@ -170,91 +77,36 @@
 
         <div class="tarjeta-formulario">
 
-            <button
-                class="boton-regresar"
-                onclick="mostrarPantalla('pantalla-bienvenida')"
-            >
-                ← Inicio
-            </button>
+            <button class="boton-regresar" onclick="mostrarPantalla('pantalla-login')">← Regresar</button>
 
-            <div class="logo-foodly">
-                Foodly
-            </div>
+            <div class="logo-foodly">Foodly</div>
 
             <h2>Crear cuenta</h2>
 
-            <p class="texto-formulario">
-                Únete a Foodly y descubre nuevos sabores.
-            </p>
+            <p class="texto-formulario">Únete a Foodly y descubre nuevos sabores.</p>
 
             <form id="form-registro" onsubmit="registrarUsuario(event)">
 
-                <label for="registro-nombre">
-                    Nombre
-                </label>
+                <label for="registro-nombre">Nombre</label>
+                <input type="text" id="registro-nombre" placeholder="Tu nombre" required>
 
-                <input
-                    type="text"
-                    id="registro-nombre"
-                    placeholder="Tu nombre"
-                    required
-                >
+                <label for="registro-apellido">Apellido</label>
+                <input type="text" id="registro-apellido" placeholder="Tu apellido" required>
 
-                <label for="registro-apellido">
-                    Apellido
-                </label>
+                <label for="registro-cedula">Cédula</label>
+                <input type="text" id="registro-cedula" placeholder="Número de documento" required>
 
-                <input
-                    type="text"
-                    id="registro-apellido"
-                    placeholder="Tu apellido"
-                    required
-                >
+                <label for="registro-correo">Correo electrónico</label>
+                <input type="email" id="registro-correo" placeholder="correo@ejemplo.com" required>
 
-                <label for="registro-cedula">
-                    Cédula
-                </label>
+                <label for="registro-contrasena">Contraseña</label>
+                <input type="password" id="registro-contrasena" placeholder="Crea una contraseña" required>
 
-                <input
-                    type="text"
-                    id="registro-cedula"
-                    placeholder="Número de documento"
-                    required
-                >
-
-                <label for="registro-correo">
-                    Correo electrónico
-                </label>
-
-                <input
-                    type="email"
-                    id="registro-correo"
-                    placeholder="correo@ejemplo.com"
-                    required
-                >
-
-                <label for="registro-contrasena">
-                    Contraseña
-                </label>
-
-                <input
-                    type="password"
-                    id="registro-contrasena"
-                    placeholder="Crea una contraseña"
-                    required
-                >
-
-                <!-- reCAPTCHA GOOGLE EN REGISTRO -->
                 <div class="contenedor-recaptcha">
                     <div class="g-recaptcha" data-sitekey="6LdKLwIuAAAAADWNwY1jp-eHayZgeJhOumkFc37a"></div>
                 </div>
 
-                <button
-                    type="submit"
-                    class="boton-principal"
-                >
-                    Crear cuenta
-                </button>
+                <button type="submit" class="boton-principal">Crear cuenta</button>
 
             </form>
 
@@ -267,1080 +119,153 @@
     <!-- HOME FOODLY -->
     <!-- ========================= -->
 
-    <section id="pantalla-home" class="pantalla">
+    <section id="pantalla-home" class="pantalla oculto">
 
         <!-- NAVBAR -->
-
         <nav class="navbar">
-
-            <div class="navbar-logo">
-                Foodly
-            </div>
-
+            <div class="navbar-logo" onclick="irAlInicio()" title="Volver al inicio">Foodly</div>
             <div class="navbar-menu">
-
-                <button
-                    onclick="mostrarSeccion('inicio')"
-                >
-                    Inicio
-                </button>
-
-                <button
-                    onclick="mostrarSeccion('explorar')"
-                >
-                    Explorar
-                </button>
-
-                <button
-                    onclick="mostrarSeccion('restaurantes')"
-                >
-                    Restaurantes
-                </button>
-
-                <button
-                    onclick="mostrarSeccion('guardados')"
-                >
-                    Guardados
-                </button>
-
-                <button
-                    onclick="mostrarSeccion('perfil')"
-                >
-                    Perfil
-                </button>
-
-                <button
-                    onclick="cerrarSesion()"
-                >
-                    Salir
-                </button>
-
+                <button onclick="mostrarSeccion('inicio')">Inicio</button>
+                <button onclick="mostrarSeccion('explorar')">Explorar</button>
+                <button onclick="mostrarSeccion('restaurantes')">Restaurantes</button>
+                <button onclick="mostrarSeccion('guardados')">Guardados</button>
+                <button onclick="mostrarSeccion('perfil')">Perfil</button>
+                <button class="btn-salir" onclick="cerrarSesion()">Salir</button>
             </div>
-
         </nav>
 
-
-        <!-- ========================= -->
         <!-- INICIO -->
-        <!-- ========================= -->
+        <main id="seccion-inicio" class="seccion-home">
 
-        <main
-            id="seccion-inicio"
-            class="seccion-home"
-        >
-
-            <div class="encabezado-feed">
-
-                <div>
-
-                    <span class="etiqueta-foodly">
-                        FOODLY
-                    </span>
-
-                    <h1>
-                        Descubre nuevos sabores
-                    </h1>
-
-                    <p>
-                        Explora restaurantes y encuentra
-                        tu próximo lugar favorito.
-                    </p>
-
-                </div>
-
+            <!-- RECUADRO MEJORADO DE BIENVENIDA -->
+            <div class="encabezado-feed-card">
+                <span class="etiqueta-foodly">FOODLY</span>
+                <h1>Descubre nuevos sabores</h1>
+                <p>Explora restaurantes y encuentra tu próximo lugar favorito.</p>
             </div>
-
 
             <!-- BUSCADOR -->
-
             <div class="barra-busqueda">
-
-                <input
-                    type="text"
-                    id="buscador-restaurantes"
-                    placeholder="Buscar restaurantes o comidas..."
-                    oninput="buscarRestaurantes()"
-                >
-
-                <button
-                    onclick="cambiarUbicacion()"
-                    title="Cambiar ubicación"
-                >
-                    📍
-                </button>
-
+                <input type="text" id="buscador-restaurantes" placeholder="Buscar restaurantes o comidas..." oninput="buscarRestaurantes()">
+                <button onclick="cambiarUbicacion()" title="Cambiar ubicación">📍</button>
             </div>
-
 
             <!-- CATEGORÍAS -->
-
             <div class="categorias">
-
-                <button
-                    class="categoria categoria-activa"
-                    onclick="filtrarCategoria('todos', this)"
-                >
-                    Todos
-                </button>
-
-                <button
-                    class="categoria"
-                    onclick="filtrarCategoria('colombiana', this)"
-                >
-                    Colombiana
-                </button>
-
-                <button
-                    class="categoria"
-                    onclick="filtrarCategoria('parrilla', this)"
-                >
-                    Parrilla
-                </button>
-
-                <button
-                    class="categoria"
-                    onclick="filtrarCategoria('hamburguesas', this)"
-                >
-                    Hamburguesas
-                </button>
-
-                <button
-                    class="categoria"
-                    onclick="filtrarCategoria('mexicana', this)"
-                >
-                    Mexicana
-                </button>
-
+                <button class="categoria categoria-activa" onclick="filtrarCategoria('todos', this)">Todos</button>
+                <button class="categoria" onclick="filtrarCategoria('colombiana', this)">Colombiana</button>
+                <button class="categoria" onclick="filtrarCategoria('parrilla', this)">Parrilla</button>
+                <button class="categoria" onclick="filtrarCategoria('hamburguesas', this)">Hamburguesas</button>
+                <button class="categoria" onclick="filtrarCategoria('mexicana', this)">Mexicana</button>
             </div>
 
-
-            <!-- ========================= -->
-            <!-- FEED -->
-            <!-- ========================= -->
-
-            <div class="feed-restaurantes">
-
-
-                <!-- SABOR PAISA -->
-
-                <article
-                    class="post-restaurante"
-                    data-categoria="colombiana"
-                >
-
-                    <div class="post-cabecera">
-
-                        <div class="avatar-restaurante">
-                            SP
-                        </div>
-
-                        <div class="info-restaurante">
-
-                            <strong>
-                                Sabor Paisa
-                            </strong>
-
-                            <span>
-                                📍 Bello, Antioquia
-                            </span>
-
-                        </div>
-
-                        <button
-                            class="boton-opciones"
-                            onclick="verRestaurante('Sabor Paisa')"
-                        >
-                            ⋯
-                        </button>
-
-                    </div>
-
-
-                    <div class="imagen-comida imagen-sabor-paisa">
-
-                        <div class="imagen-contenido">
-
-                            <span>
-                                🇨🇴
-                            </span>
-
-                            <strong>
-                                Sabor tradicional paisa
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="acciones-post">
-
-                        <button
-                            onclick="verRestaurante('Sabor Paisa')"
-                        >
-                            ♡
-                        </button>
-
-                        <button
-                            onclick="verRestaurante('Sabor Paisa')"
-                        >
-                            💬
-                        </button>
-
-                        <button
-                            onclick="verRestaurante('Sabor Paisa')"
-                        >
-                            ↗
-                        </button>
-
-                        <button
-                            class="boton-guardar"
-                            onclick="guardarRestaurante('Sabor Paisa', this)"
-                        >
-                            Guardar
-                        </button>
-
-                    </div>
-
-
-                    <div class="contenido-post">
-
-                        <div class="calificacion-post">
-                            ⭐ 4.8
-                        </div>
-
-                        <h2>
-                            Sabor Paisa
-                        </h2>
-
-                        <p>
-                            Sabores tradicionales paisas y comida
-                            rápida para disfrutar en cualquier momento.
-                        </p>
-
-                        <div class="grupo-acciones-card">
-                            <button
-                                class="boton-principal boton-ver-restaurante"
-                                onclick="verRestaurante('Sabor Paisa')"
-                            >
-                                Ver restaurante →
-                            </button>
-                            <button
-                                class="boton-whatsapp"
-                                onclick="abrirWhatsApp('573001234567', 'Sabor Paisa')"
-                            >
-                                💬 WhatsApp
-                            </button>
-                        </div>
-
-                    </div>
-
-                </article>
-
-
-                <!-- LA PARRILLA DEL VALLE -->
-
-                <article
-                    class="post-restaurante"
-                    data-categoria="parrilla"
-                >
-
-                    <div class="post-cabecera">
-
-                        <div class="avatar-restaurante">
-                            PV
-                        </div>
-
-                        <div class="info-restaurante">
-
-                            <strong>
-                                La Parrilla del Valle
-                            </strong>
-
-                            <span>
-                                📍 Medellín, Antioquia
-                            </span>
-
-                        </div>
-
-                        <button
-                            class="boton-opciones"
-                            onclick="verRestaurante('La Parrilla del Valle')"
-                        >
-                            ⋯
-                        </button>
-
-                    </div>
-
-
-                    <div class="imagen-comida imagen-parrilla">
-
-                        <div class="imagen-contenido">
-
-                            <span>
-                                🥩
-                            </span>
-
-                            <strong>
-                                Carnes a la parrilla
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="acciones-post">
-
-                        <button
-                            onclick="verRestaurante('La Parrilla del Valle')"
-                        >
-                            ♡
-                        </button>
-
-                        <button
-                            onclick="verRestaurante('La Parrilla del Valle')"
-                        >
-                            💬
-                        </button>
-
-                        <button
-                            onclick="verRestaurante('La Parrilla del Valle')"
-                        >
-                            ↗
-                        </button>
-
-                        <button
-                            class="boton-guardar"
-                            onclick="guardarRestaurante('La Parrilla del Valle', this)"
-                        >
-                            Guardar
-                        </button>
-
-                    </div>
-
-
-                    <div class="contenido-post">
-
-                        <div class="calificacion-post">
-                            ⭐ 4.6
-                        </div>
-
-                        <h2>
-                            La Parrilla del Valle
-                        </h2>
-
-                        <p>
-                            Carnes a la parrilla con preparaciones
-                            especiales y sabores para compartir.
-                        </p>
-
-                        <div class="grupo-acciones-card">
-                            <button
-                                class="boton-principal boton-ver-restaurante"
-                                onclick="verRestaurante('La Parrilla del Valle')"
-                            >
-                                Ver restaurante →
-                            </button>
-                            <button
-                                class="boton-whatsapp"
-                                onclick="abrirWhatsApp('573009876543', 'La Parrilla del Valle')"
-                            >
-                                💬 WhatsApp
-                            </button>
-                        </div>
-
-                    </div>
-
-                </article>
-
-
-                <!-- BURGER HOUSE -->
-
-                <article
-                    class="post-restaurante"
-                    data-categoria="hamburguesas"
-                >
-
-                    <div class="post-cabecera">
-
-                        <div class="avatar-restaurante">
-                            BH
-                        </div>
-
-                        <div class="info-restaurante">
-
-                            <strong>
-                                Burger House
-                            </strong>
-
-                            <span>
-                                📍 Bello, Antioquia
-                            </span>
-
-                        </div>
-
-                        <button
-                            class="boton-opciones"
-                            onclick="verRestaurante('Burger House')"
-                        >
-                            ⋯
-                        </button>
-
-                    </div>
-
-
-                    <div class="imagen-comida imagen-burger">
-
-                        <div class="imagen-contenido">
-
-                            <span>
-                                🍔
-                            </span>
-
-                            <strong>
-                                Hamburguesas artesanales
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="acciones-post">
-
-                        <button
-                            onclick="verRestaurante('Burger House')"
-                        >
-                            ♡
-                        </button>
-
-                        <button
-                            onclick="verRestaurante('Burger House')"
-                        >
-                            💬
-                        </button>
-
-                        <button
-                            onclick="verRestaurante('Burger House')"
-                        >
-                            ↗
-                        </button>
-
-                        <button
-                            class="boton-guardar"
-                            onclick="guardarRestaurante('Burger House', this)"
-                        >
-                            Guardar
-                        </button>
-
-                    </div>
-
-
-                    <div class="contenido-post">
-
-                        <div class="calificacion-post">
-                            ⭐ 4.7
-                        </div>
-
-                        <h2>
-                            Burger House
-                        </h2>
-
-                        <p>
-                            Hamburguesas artesanales y papas hechas
-                            en casa para los amantes de la comida rápida.
-                        </p>
-
-                        <div class="grupo-acciones-card">
-                            <button
-                                class="boton-principal boton-ver-restaurante"
-                                onclick="verRestaurante('Burger House')"
-                            >
-                                Ver restaurante →
-                            </button>
-                            <button
-                                class="boton-whatsapp"
-                                onclick="abrirWhatsApp('573001112233', 'Burger House')"
-                            >
-                                💬 WhatsApp
-                            </button>
-                        </div>
-
-                    </div>
-
-                </article>
-
-
-                <!-- MÉXICO EN LA ESQUINA -->
-
-                <article
-                    class="post-restaurante"
-                    data-categoria="mexicana"
-                >
-
-                    <div class="post-cabecera">
-
-                        <div class="avatar-restaurante">
-                            ME
-                        </div>
-
-                        <div class="info-restaurante">
-
-                            <strong>
-                                México en la Esquina
-                            </strong>
-
-                            <span>
-                                📍 Copacabana, Antioquia
-                            </span>
-
-                        </div>
-
-                        <button
-                            class="boton-opciones"
-                            onclick="verRestaurante('México en la Esquina')"
-                        >
-                            ⋯
-                        </button>
-
-                    </div>
-
-
-                    <div class="imagen-comida imagen-mexico">
-
-                        <div class="imagen-contenido">
-
-                            <span>
-                                🌮
-                            </span>
-
-                            <strong>
-                                Sabores mexicanos
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="acciones-post">
-
-                        <button
-                            onclick="verRestaurante('México en la Esquina')"
-                        >
-                            ♡
-                        </button>
-
-                        <button
-                            onclick="verRestaurante('México en la Esquina')"
-                        >
-                            💬
-                        </button>
-
-                        <button
-                            onclick="verRestaurante('México en la Esquina')"
-                        >
-                            ↗
-                        </button>
-
-                        <button
-                            class="boton-guardar"
-                            onclick="guardarRestaurante('México en la Esquina', this)"
-                        >
-                            Guardar
-                        </button>
-
-                    </div>
-
-
-                    <div class="contenido-post">
-
-                        <div class="calificacion-post">
-                            ⭐ 4.5
-                        </div>
-
-                        <h2>
-                            México en la Esquina
-                        </h2>
-
-                        <p>
-                            Tacos y sabores mexicanos para disfrutar
-                            en cualquier momento.
-                        </p>
-
-                        <div class="grupo-acciones-card">
-                            <button
-                                class="boton-principal boton-ver-restaurante"
-                                onclick="verRestaurante('México en la Esquina')"
-                            >
-                                Ver restaurante →
-                            </button>
-                            <button
-                                class="boton-whatsapp"
-                                onclick="abrirWhatsApp('573004445566', 'México en la Esquina')"
-                            >
-                                💬 WhatsApp
-                            </button>
-                        </div>
-
-                    </div>
-
-                </article>
-
-            </div>
+            <!-- FEED DINÁMICO -->
+            <div id="feed-restaurantes" class="feed-restaurantes"></div>
 
         </main>
 
-
-        <!-- ========================= -->
         <!-- EXPLORAR -->
-        <!-- ========================= -->
-
-        <section
-            id="seccion-explorar"
-            class="seccion-home oculto"
-        >
-
+        <section id="seccion-explorar" class="seccion-home oculto">
             <div class="pagina-simple">
-
-                <span class="etiqueta-foodly">
-                    EXPLORAR
-                </span>
-
-                <h1>
-                    Explora nuevos sabores
-                </h1>
-
-                <p>
-                    Busca restaurantes por categoría,
-                    ubicación o tipo de comida.
-                </p>
-
-                <button
-                    class="boton-principal"
-                    onclick="mostrarSeccion('inicio')"
-                >
-                    Explorar restaurantes
-                </button>
-
+                <span class="etiqueta-foodly">EXPLORAR</span>
+                <h1>Explora nuevos sabores</h1>
+                <p>Busca restaurantes por categoría, ubicación o tipo de comida.</p>
+                <button class="boton-principal" onclick="mostrarSeccion('inicio')">Explorar restaurantes</button>
             </div>
-
         </section>
 
-
-        <!-- ========================= -->
         <!-- RESTAURANTES -->
-        <!-- ========================= -->
-
-        <section
-            id="seccion-restaurantes"
-            class="seccion-home oculto"
-        >
-
+        <section id="seccion-restaurantes" class="seccion-home oculto">
             <div class="pagina-simple">
-
-                <span class="etiqueta-foodly">
-                    RESTAURANTES
-                </span>
-
-                <h1>
-                    Restaurantes
-                </h1>
-
-                <p>
-                    Conoce algunos de los restaurantes
-                    disponibles en Foodly.
-                </p>
-
+                <span class="etiqueta-foodly">RESTAURANTES</span>
+                <h1>Restaurantes</h1>
+                <p>Conoce todos los establecimientos registrados en Foodly.</p>
             </div>
-
-
-            <div class="feed-restaurantes">
-
-
-                <article class="post-restaurante">
-
-                    <div class="post-cabecera">
-
-                        <div class="avatar-restaurante">
-                            SP
-                        </div>
-
-                        <div class="info-restaurante">
-
-                            <strong>
-                                Sabor Paisa
-                            </strong>
-
-                            <span>
-                                📍 Bello, Antioquia
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                    <div class="contenido-post">
-
-                        <div class="calificacion-post">
-                            ⭐ 4.8
-                        </div>
-
-                        <h2>
-                            Sabor Paisa
-                        </h2>
-
-                        <p>
-                            Comida tradicional paisa y comida rápida.
-                        </p>
-
-                        <div class="grupo-acciones-card">
-                            <button
-                                class="boton-principal boton-ver-restaurante"
-                                onclick="verRestaurante('Sabor Paisa')"
-                            >
-                                Ver restaurante →
-                            </button>
-                            <button
-                                class="boton-whatsapp"
-                                onclick="abrirWhatsApp('573001234567', 'Sabor Paisa')"
-                            >
-                                💬 WhatsApp
-                            </button>
-                        </div>
-
-                    </div>
-
-                </article>
-
-
-                <article class="post-restaurante">
-
-                    <div class="post-cabecera">
-
-                        <div class="avatar-restaurante">
-                            PV
-                        </div>
-
-                        <div class="info-restaurante">
-
-                            <strong>
-                                La Parrilla del Valle
-                            </strong>
-
-                            <span>
-                                📍 Medellín, Antioquia
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                    <div class="contenido-post">
-
-                        <div class="calificacion-post">
-                            ⭐ 4.6
-                        </div>
-
-                        <h2>
-                            La Parrilla del Valle
-                        </h2>
-
-                        <p>
-                            Carnes y preparaciones especiales a la parrilla.
-                        </p>
-
-                        <div class="grupo-acciones-card">
-                            <button
-                                class="boton-principal boton-ver-restaurante"
-                                onclick="verRestaurante('La Parrilla del Valle')"
-                            >
-                                Ver restaurante →
-                            </button>
-                            <button
-                                class="boton-whatsapp"
-                                onclick="abrirWhatsApp('573009876543', 'La Parrilla del Valle')"
-                            >
-                                💬 WhatsApp
-                            </button>
-                        </div>
-
-                    </div>
-
-                </article>
-
-
-                <article class="post-restaurante">
-
-                    <div class="post-cabecera">
-
-                        <div class="avatar-restaurante">
-                            BH
-                        </div>
-
-                        <div class="info-restaurante">
-
-                            <strong>
-                                Burger House
-                            </strong>
-
-                            <span>
-                                📍 Bello, Antioquia
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                    <div class="contenido-post">
-
-                        <div class="calificacion-post">
-                            ⭐ 4.7
-                        </div>
-
-                        <h2>
-                            Burger House
-                        </h2>
-
-                        <p>
-                            Hamburguesas artesanales y papas caseras.
-                        </p>
-
-                        <div class="grupo-acciones-card">
-                            <button
-                                class="boton-principal boton-ver-restaurante"
-                                onclick="verRestaurante('Burger House')"
-                            >
-                                Ver restaurante →
-                            </button>
-                            <button
-                                class="boton-whatsapp"
-                                onclick="abrirWhatsApp('573001112233', 'Burger House')"
-                            >
-                                💬 WhatsApp
-                            </button>
-                        </div>
-
-                    </div>
-
-                </article>
-
-
-                <article class="post-restaurante">
-
-                    <div class="post-cabecera">
-
-                        <div class="avatar-restaurante">
-                            ME
-                        </div>
-
-                        <div class="info-restaurante">
-
-                            <strong>
-                                México en la Esquina
-                            </strong>
-
-                            <span>
-                                📍 Copacabana, Antioquia
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                    <div class="contenido-post">
-
-                        <div class="calificacion-post">
-                            ⭐ 4.5
-                        </div>
-
-                        <h2>
-                            México en la Esquina
-                        </h2>
-
-                        <p>
-                            Tacos y sabores tradicionales mexicanos.
-                        </p>
-
-                        <div class="grupo-acciones-card">
-                            <button
-                                class="boton-principal boton-ver-restaurante"
-                                onclick="verRestaurante('México en la Esquina')"
-                            >
-                                Ver restaurante →
-                            </button>
-                            <button
-                                class="boton-whatsapp"
-                                onclick="abrirWhatsApp('573004445566', 'México en la Esquina')"
-                            >
-                                💬 WhatsApp
-                            </button>
-                        </div>
-
-                    </div>
-
-                </article>
-
-            </div>
-
+            <div id="lista-restaurantes-seccion" class="feed-restaurantes"></div>
         </section>
 
-
-        <!-- ========================= -->
         <!-- GUARDADOS -->
-        <!-- ========================= -->
-
-        <section
-            id="seccion-guardados"
-            class="seccion-home oculto"
-        >
-
+        <section id="seccion-guardados" class="seccion-home oculto">
             <div class="pagina-simple">
-
-                <span class="etiqueta-foodly">
-                    GUARDADOS
-                </span>
-
-                <h1>
-                    Tus restaurantes
-                </h1>
-
-                <p>
-                    Aquí encontrarás los restaurantes
-                    que hayas guardado.
-                </p>
-
+                <span class="etiqueta-foodly">GUARDADOS</span>
+                <h1>Tus restaurantes</h1>
+                <p>Aquí encontrarás los restaurantes que has guardado en tus favoritos.</p>
             </div>
-
-            <div id="lista-guardados"></div>
-
+            <div id="lista-guardados" class="feed-restaurantes"></div>
         </section>
 
-
-        <!-- ========================= -->
         <!-- PERFIL -->
-        <!-- ========================= -->
-
-        <section
-            id="seccion-perfil"
-            class="seccion-home oculto"
-        >
-
+        <section id="seccion-perfil" class="seccion-home oculto">
             <div class="pagina-simple">
-
-                <span class="etiqueta-foodly">
-                    PERFIL
-                </span>
-
-                <h1>
-                    Mi perfil
-                </h1>
-
-                <p>
-                    Explora Foodly y descubre nuevos lugares
-                    para comer.
-                </p>
-
-                <button
-                    class="boton-principal"
-                    onclick="cerrarSesion()"
-                >
-                    Cerrar sesión
-                </button>
-
+                <span class="etiqueta-foodly">PERFIL</span>
+                <h1>Mi perfil</h1>
+                <p>Gestiona tu cuenta y explora la plataforma.</p>
+                <button class="boton-principal" onclick="cerrarSesion()">Cerrar sesión</button>
             </div>
-
         </section>
 
-
-        <!-- ========================= -->
-        <!-- DETALLE RESTAURANTE -->
-        <!-- ========================= -->
-
-        <section
-            id="detalle-restaurante"
-            class="seccion-home oculto"
-        >
-
+        <!-- TARJETA DE PRESENTACIÓN / DETALLE -->
+        <section id="seccion-detalle-restaurante" class="seccion-home oculto">
             <div class="detalle-contenedor">
 
-                <button
-                    class="boton-regresar"
-                    onclick="volverAListaRestaurantes()"
-                >
-                    ← Volver a restaurantes
-                </button>
+                <button class="boton-regresar-inline" onclick="volverAListaRestaurantes()">← Volver al inicio</button>
 
+                <div class="tarjeta-presentacion">
 
-                <div class="detalle-card">
-
-                    <div
-                        id="detalle-icono"
-                        class="detalle-icono"
-                    >
-                        🍽️
+                    <div class="portada-restaurante">
+                        <img id="detalle-banner" src="" alt="Portada del restaurante">
+                        <img id="detalle-logo-img" class="avatar-perfil-img" src="" alt="Logo restaurante" onerror="this.style.display='none'; document.getElementById('detalle-avatar-text').style.display='flex';">
+                        <div class="avatar-perfil-restaurante" id="detalle-avatar-text" style="display:none;">SP</div>
                     </div>
 
-                    <h1 id="detalle-nombre">
-                        Restaurante
-                    </h1>
+                    <div class="cuerpo-presentacion">
 
-                    <p id="detalle-descripcion">
-                        Descripción del restaurante.
-                    </p>
+                        <div class="encabezado-presentacion">
+                            <div>
+                                <h1 id="detalle-nombre">Nombre Restaurante</h1>
+                                <span class="categoria-badge" id="detalle-categoria">Categoría</span>
+                            </div>
+                            <div class="calificacion-badge" id="detalle-calificacion">⭐ 0.0</div>
+                        </div>
 
-                    <div class="detalle-dato">
-                        <strong>
-                            ⭐ Calificación
-                        </strong>
+                        <p id="detalle-descripcion" class="descripcion-presentacion"></p>
 
-                        <span id="detalle-calificacion">
-                            -
-                        </span>
-                    </div>
+                        <div class="grid-datos">
+                            <div class="dato-item">
+                                <strong>📍 Ubicación:</strong>
+                                <span id="detalle-ubicacion">-</span>
+                            </div>
+                            <div class="dato-item">
+                                <strong>🏠 Dirección:</strong>
+                                <span id="detalle-direccion">-</span>
+                            </div>
+                            <div class="dato-item">
+                                <strong>📞 Teléfono:</strong>
+                                <span id="detalle-telefono">-</span>
+                            </div>
+                            <div class="dato-item">
+                                <strong>💬 WhatsApp:</strong>
+                                <span id="detalle-whatsapp">-</span>
+                            </div>
+                        </div>
 
-                    <div class="detalle-dato">
-                        <strong>
-                            📍 Ubicación
-                        </strong>
+                        <h3 class="titulo-platos">🍽️ Platos Principales</h3>
+                        <div id="detalle-platos" class="grid-platos"></div>
 
-                        <span id="detalle-ubicacion">
-                            -
-                        </span>
-                    </div>
+                        <div class="grupo-acciones-card" style="margin-top:20px;">
+                            <button class="boton-principal" onclick="guardarDesdeDetalle()">
+                                ♡ Guardar en Favoritos
+                            </button>
+                            <button id="btn-detalle-wa" class="boton-whatsapp" onclick="abrirWhatsAppDesdeDetalle()">
+                                💬 Contactar por WhatsApp
+                            </button>
+                        </div>
 
-                    <div class="detalle-dato">
-                        <strong>
-                            📞 Teléfono / WhatsApp
-                        </strong>
-
-                        <span id="detalle-telefono">
-                            -
-                        </span>
-                    </div>
-
-                    <div class="grupo-acciones-card" style="margin-top: 15px;">
-                        <button
-                            class="boton-principal"
-                            onclick="guardarDesdeDetalle()"
-                        >
-                            ♡ Guardar restaurante
-                        </button>
-
-                        <button
-                            id="btn-detalle-wa"
-                            class="boton-whatsapp"
-                            onclick="abrirWhatsAppDesdeDetalle()"
-                        >
-                            💬 Contactar por WhatsApp
-                        </button>
                     </div>
 
                 </div>
 
             </div>
-
         </section>
 
     </section>

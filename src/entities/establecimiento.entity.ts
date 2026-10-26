@@ -27,6 +27,9 @@ export class Establecimiento {
   @Column({ type: 'tinyint', default: 1 })
   estado: number;
 
+  @Column({ type: 'varchar', length: 20, nullable: true })
+whatsapp: string;
+
   @OneToMany(() => Producto, producto => producto.establecimiento)
   productos: Producto[];
 }

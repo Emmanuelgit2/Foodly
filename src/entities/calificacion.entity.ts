@@ -6,7 +6,6 @@ import {
   JoinColumn,
 } from 'typeorm';
 
-import { Pedido } from './pedido.entity';
 import { Usuario } from './usuario.entity';
 
 @Entity('calificaciones')
@@ -16,10 +15,6 @@ export class Calificacion {
 
   @Column({ name: 'id_pedido' })
   id_pedido: number;
-
-  @ManyToOne(() => Pedido, pedido => pedido.calificaciones)
-  @JoinColumn({ name: 'id_pedido' })
-  pedido: Pedido;
 
   @Column({ name: 'id_usuario' })
   id_usuario: number;

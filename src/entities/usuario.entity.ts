@@ -1,3 +1,4 @@
+
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -5,9 +6,6 @@ import {
   OneToMany,
 } from 'typeorm';
 
-import { Pedido } from './pedido.entity';
-import { Direccion } from './direccion.entity';
-import { Repartidor } from './repartidor.entity';
 import { Calificacion } from './calificacion.entity';
 
 @Entity('usuarios')
@@ -21,21 +19,19 @@ export class Usuario {
   @Column({ length: 100, unique: true })
   correo: string;
 
-  @Column({ name: 'contrasena', length: 255 })
+  @Column({ name: 'conrasena', length: 255 })
   contrasena: string;
 
   @Column({ length: 30, default: 'cliente' })
   rol: string;
 
-  @OneToMany(() => Pedido, pedido => pedido.usuario)
-  pedidos: Pedido[];
+  @Column({ type: 'varchar', length: 255, nullable: true })
+googleId: string;
 
-  @OneToMany(() => Direccion, direccion => direccion.usuario)
-  direcciones: Direccion[];
+// Asegúrate de que la contraseña sea opcional si el usuario inicia sesión con Google
+@Column({ type: 'varchar', length: 255, nullable: true })
+password?: string;
 
-  @OneToMany(() => Repartidor, repartidor => repartidor.usuario)
-  repartidores: Repartidor[];
-
-  @OneToMany(() => Calificacion, calificacion => calificacion.usuario)
+  @OneToMany(() => Calificacion, (calificacion) => calificacion.usuario)
   calificaciones: Calificacion[];
 }

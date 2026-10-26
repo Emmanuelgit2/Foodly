@@ -9,7 +9,6 @@ import {
 
 import { Establecimiento } from './establecimiento.entity';
 import { Categoria } from './categoria.entity';
-import { DetallePedido } from './detalle-pedido.entity';
 
 @Entity('productos')
 export class Producto {
@@ -49,6 +48,4 @@ export class Producto {
   @JoinColumn({ name: 'id_categoria' })
   categoria: Categoria;
 
-  @OneToMany(() => DetallePedido, detalle => detalle.producto)
-  detalles: DetallePedido[];
 }

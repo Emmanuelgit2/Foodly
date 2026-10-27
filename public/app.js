@@ -1,468 +1,399 @@
-// BASE DE DATOS LOCAL DE RESPALDO (FALLBACK EN CASO DE QUE LA API NO RESPONDA)
-const restaurantesBD = {
-    'Sabor Paisa': {
-        id: 'Sabor Paisa',
-        nombre: 'Sabor Paisa',
-        categoria: 'Colombiana',
-        categoriaKey: 'colombiana',
-        descripcion: 'Sabores tradicionales paisas y comida típica preparada con sazón casera e ingredientes frescos.',
-        calificacion: '4.8',
-        ubicacion: 'Bello, Antioquia',
-        direccion: 'Calle 50 #48-20, Parque de Bello',
-        telefono: '+57 (604) 456-7890',
-        whatsapp: '573001234567',
-        avatarText: 'SP',
-        fotoPerfil: 'imagenes/sabor-paisa-logo.jpg',
-        imagenFondo: 'imagenes/sabor-paisa.jpg',
-        platos: [
-            { nombre: 'Bandeja Paisa Tradicional', precio: '$32.000', desc: 'Chicharrón crocante, carne molida, huevo frito, tajada de plátano, arepa y frijoles.' },
-            { nombre: 'Sancocho Trifásico', precio: '$28.000', desc: 'Con carne de res, cerdo y pollo, acompañado de arroz, aguacate y arepa.' },
-            { nombre: 'Cazuela de Frijoles', precio: '$25.000', desc: 'Servida con chicharrón picado, plátano maduro en cubos, maicitos y aguacate.' }
-        ]
-    },
-    'La Parrilla del Valle': {
-        id: 'La Parrilla del Valle',
-        nombre: 'La Parrilla del Valle',
-        categoria: 'Parrilla',
-        categoriaKey: 'parrilla',
-        descripcion: 'Cortes de carne premium madurados a la perfección y asados al carbón con sazón única.',
-        calificacion: '4.6',
-        ubicacion: 'Medellín, Antioquia',
-        direccion: 'Cra 43A #1-50, El Poblado',
-        telefono: '+57 (604) 312-4567',
-        whatsapp: '573009876543',
-        avatarText: 'PV',
-        fotoPerfil: 'imagenes/parrilla-logo.jpg',
-        imagenFondo: 'imagenes/parrilla.jpg',
-        platos: [
-            { nombre: 'Punta de Anca (350g)', precio: '$42.000', desc: 'Corte jugoso a la parrilla acompañado de papas criollas y guacamole.' },
-            { nombre: 'Baby Beef Lomo Tierno', precio: '$45.000', desc: 'Acompañado de ensalada fresca de la casa y chimichurri especial.' },
-            { nombre: 'Choripán Artesanal', precio: '$18.000', desc: 'Chorizo de la casa en pan baguette con queso fundido y salsa chimichurri.' }
-        ]
-    },
-    'Burger House': {
-        id: 'Burger House',
-        nombre: 'Burger House',
-        categoria: 'Hamburguesas',
-        categoriaKey: 'hamburguesas',
-        descripcion: 'Hamburguesas artesanales elaboradas con carne 100% de res, pan brioche horneado a diario y salsas de la casa.',
-        calificacion: '4.7',
-        ubicacion: 'Bello, Antioquia',
-        direccion: 'Diag 55 #34-10, Niquía',
-        telefono: '+57 (604) 234-5678',
-        whatsapp: '573001112233',
-        avatarText: 'BH',
-        fotoPerfil: 'imagenes/burger-logo.jpg',
-        imagenFondo: 'imagenes/burger.jpg',
-        platos: [
-            { nombre: 'Burger Doble Queso & Tocineta', precio: '$26.000', desc: '200g de carne, queso cheddar doble, tocineta ahumada y salsa BBQ.' },
-            { nombre: 'Crispy Chicken Burger', precio: '$24.000', desc: 'Pechuga de pollo crujiente, pepinillos dulces y mayonesa de ajo.' },
-            { nombre: 'Papas Especiales House', precio: '$16.000', desc: 'Papas a la francesa bañadas en queso fundido, tocineta y ciboulette.' }
-        ]
-    },
-    'México en la Esquina': {
-        id: 'México en la Esquina',
-        nombre: 'México en la Esquina',
-        categoria: 'Mexicana',
-        categoriaKey: 'mexicana',
-        descripcion: 'El auténtico sabor mexicano: tacos al pastor, quesabirrias, nachos artesanales y margaritas tradicionales.',
-        calificacion: '4.5',
-        ubicacion: 'Copacabana, Antioquia',
-        direccion: 'Cl 50 #51-12, Centro',
-        telefono: '+57 (604) 567-8901',
-        whatsapp: '573004445566',
-        avatarText: 'ME',
-        fotoPerfil: 'imagenes/mexico-logo.jpg',
-        imagenFondo: 'imagenes/mexico.jpg',
-        platos: [
-            { nombre: 'Tacos al Pastor (3 Unidades)', precio: '$22.000', desc: 'Carne de cerdo marinada con piña, cilantro fresco y cebolla picada.' },
-            { nombre: 'Quesabirrias con Consomé', precio: '$27.000', desc: '3 tortillas con queso fundido y carne desmechada para sumergir.' },
-            { nombre: 'Nachos Supremos', precio: '$25.000', desc: 'Tortillas de maíz con guacamole, frijol refrito, pico de gallo y jalapeños.' }
-        ]
-    }
-};
+// Base de datos de restaurantes con imágenes locales
+const restaurantesBD = [
+  {
+    id: "sabor-paisa",
+    nombre: "Sabor Paisa",
+    categoria: "Colombiana",
+    ubicacion: "Bello, Antioquia",
+    direccion: "Calle 50 #48-20, Parque de Bello",
+    lat: 6.3317,
+    lng: -75.5583,
+    telefono: "+57 (604) 456-7890",
+    whatsapp: "+573001234567",
+    logo: "imagenes/saborpaisa-logo.jpg",
+    portada: "imagenes/paisa.jpg",
+    calificacion: 4.8,
+    abierto: true,
+    likesCount: 439,
+    commentsCount: 6,
+    repostsCount: 23,
+    descripcion: "Sabores tradicionales paisas y comida típica preparada con sazón casera e ingredientes frescos.",
+    platos: [
+      { id: "p1", nombre: "Bandeja Paisa Tradicional", precio: "$32.000", desc: "Chicharrón crocante, carne molida, huevo frito, tajada de plátano, arepa y frijoles." },
+      { id: "p2", nombre: "Sancocho Trifásico", precio: "$28.000", desc: "Con carne de res, cerdo y pollo, acompañado de arroz, aguacate y arepa." },
+      { id: "p3", nombre: "Cazuela de Frijoles", precio: "$25.000", desc: "Servida con chicharrón picado, plátano maduro en cubos, maicitos y aguacate." }
+    ]
+  },
+  {
+    id: "burger-house",
+    nombre: "Burger House",
+    categoria: "Hamburguesas",
+    ubicacion: "Bello, Antioquia",
+    direccion: "Carrera 49 #52-10",
+    lat: 6.3340,
+    lng: -75.5560,
+    telefono: "+57 (604) 456-1122",
+    whatsapp: "+573009876543",
+    logo: "imagenes/burguer-logo.jpg",
+    portada: "imagenes/burguer.jpg",
+    calificacion: 4.9,
+    abierto: true,
+    likesCount: 280,
+    commentsCount: 12,
+    repostsCount: 15,
+    descripcion: "Hamburguesas artesanales de res 100% madurada, pan brioche horneado a diario y salsas de la casa.",
+    platos: [
+      { id: "b1", nombre: "Burger Royal Bacon", precio: "$29.000", desc: "Doble carne, tocino ahumado, queso cheddar fundido y cebolla caramelizada." },
+      { id: "b2", nombre: "Burger Trufada", precio: "$31.000", desc: "Carne de res, queso suizo, mayo de trufa y rúgula fresca." }
+    ]
+  },
+  {
+    id: "parrilla-valle",
+    nombre: "La Parrilla del Valle",
+    categoria: "Parrilla",
+    ubicacion: "Bello, Antioquia",
+    direccion: "Calle 55 #45-12",
+    lat: 6.3360,
+    lng: -75.5520,
+    telefono: "+57 (604) 456-3344",
+    whatsapp: "+573012223344",
+    logo: "imagenes/parrilla-logo.jpg",
+    portada: "imagenes/parrilla.jpg",
+    calificacion: 4.7,
+    abierto: false,
+    likesCount: 195,
+    commentsCount: 4,
+    repostsCount: 8,
+    descripcion: "Cortes de carne premium a la parrilla, costillas ahumadas y chorizos artesanales al carbón.",
+    platos: [
+      { id: "v1", nombre: "Tomahawk Angus (800g)", precio: "$85.000", desc: "Corte grueso a la parrilla acompañado de papas criollas y chimichurri." },
+      { id: "v2", nombre: "Costillas BBQ Ahumadas", precio: "$42.000", desc: "Bañadas en salsa BBQ artesanal con puré de papa." }
+    ]
+  },
+  {
+    id: "mexico-esquina",
+    nombre: "México en la Esquina",
+    categoria: "Mexicana",
+    ubicacion: "Bello, Antioquia",
+    direccion: "Calle 48 #51-30",
+    lat: 6.3300,
+    lng: -75.5600,
+    telefono: "+57 (604) 456-5566",
+    whatsapp: "+573023334455",
+    logo: "imagenes/mexico-logo.jpg",
+    portada: "imagenes/mexico.jpg",
+    calificacion: 4.8,
+    abierto: true,
+    likesCount: 512,
+    commentsCount: 18,
+    repostsCount: 34,
+    descripcion: "Auténticos tacos al pastor, quesabirrias con consomé y margaritas tradicionales mexicanas.",
+    platos: [
+      { id: "m1", nombre: "Tacos de Birria (3 uds)", precio: "$26.000", desc: "Tortilla de maíz artesanal, carne desmechada, queso fundido y consomé." },
+      { id: "m2", nombre: "Tacos al Pastor", precio: "$24.000", desc: "Cerdo marinado con achiote, piña asada, cilantro y cebolla." }
+    ]
+  }
+];
 
-let guardados = [];
-let likes = {};
-let telefonoDetalleActual = '';
-let nombreDetalleActual = '';
-let restaurantesCargadosAPI = [];
+// Estado global y LocalStorage
+let favoritos = JSON.parse(localStorage.getItem('foodly_favoritos')) || [];
+let guardados = JSON.parse(localStorage.getItem('foodly_guardados')) || [];
+let reposts = JSON.parse(localStorage.getItem('foodly_reposts')) || [];
+let comentariosBD = JSON.parse(localStorage.getItem('foodly_comentarios')) || {};
+let categoriaActual = "Todos";
+let restauranteComentarioId = null;
 
-// CONFIGURACIÓN DE MICROSOFT ENTRA ID (MSAL.js)
-const msalConfig = {
-    auth: {
-        clientId: "00000000-0000-0000-0000-000000000000",
-        authority: "https://login.microsoftonline.com/common",
-        redirectUri: window.location.origin
-    }
-};
+// Inicialización
+document.addEventListener('DOMContentLoaded', () => {
+  verificarSesion();
+  inicializarTema();
+  renderizarTarjetas();
+  configurarBuscadorYFiltros();
+});
 
-let msalInstance = null;
-if (typeof msal !== 'undefined') {
-    msalInstance = new msal.PublicClientApplication(msalConfig);
+// Autenticación
+function procesarLogin(e) {
+  e.preventDefault();
+  localStorage.setItem('foodly_usuario', 'usuario_activo');
+  document.getElementById('pantalla-login').classList.add('hidden');
+  document.getElementById('pantalla-app').classList.remove('hidden');
 }
 
-// NAVEGACIÓN ENTRE PANTALLAS
-function mostrarPantalla(idPantalla) {
-    document.querySelectorAll('.pantalla').forEach(p => p.classList.add('oculto'));
-    const destino = document.getElementById(idPantalla);
-    if (destino) destino.classList.remove('oculto');
-}
-
-function mostrarSeccion(idSeccion) {
-    document.querySelectorAll('.seccion-home').forEach(s => s.classList.add('oculto'));
-    const destino = document.getElementById(`seccion-${idSeccion}`);
-    if (destino) destino.classList.remove('oculto');
-}
-
-function irAlInicio() {
-    mostrarSeccion('inicio');
+function loginSocial(proveedor) {
+  localStorage.setItem('foodly_usuario', `usuario_${proveedor.toLowerCase()}`);
+  document.getElementById('pantalla-login').classList.add('hidden');
+  document.getElementById('pantalla-app').classList.remove('hidden');
 }
 
 function cerrarSesion() {
-    mostrarPantalla('pantalla-login');
+  localStorage.removeItem('foodly_usuario');
+  document.getElementById('pantalla-app').classList.add('hidden');
+  document.getElementById('pantalla-login').classList.remove('hidden');
 }
 
-// RENDERIZAR FEED DESDE API NOSQL (NESTJS / MONGODB)
-async function renderizarFeed() {
-    const contenedor = document.getElementById('feed-restaurantes');
-    const contenedorSeccion = document.getElementById('lista-restaurantes-seccion');
-    if (!contenedor) return;
-
-    try {
-        const respuesta = await fetch('/api/establecimientos');
-        const listaRestaurantes = await respuesta.json();
-
-        // Si la base de datos NoSQL devuelve registros los usamos, de lo contrario usamos la base local de respaldo
-        const datos = (Array.isArray(listaRestaurantes) && listaRestaurantes.length > 0)
-            ? listaRestaurantes
-            : Object.values(restaurantesBD);
-
-        restaurantesCargadosAPI = datos;
-
-        let html = '';
-        datos.forEach(r => {
-            const idRest = r._id || r.id;
-            const isLiked = likes[idRest];
-            const isSaved = guardados.includes(idRest);
-            const catKey = r.categoriaKey || (r.categoria ? r.categoria.toLowerCase() : 'todos');
-
-            html += `
-                <article class="post-restaurante" data-categoria="${catKey}">
-                    <div class="post-cabecera">
-                        <div class="avatar-restaurante-wrapper">
-                            <img src="${r.fotoPerfil || ''}" class="avatar-img" alt="${r.nombre}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="avatar-restaurante-fallback" style="display:none;">${r.avatarText || 'FD'}</div>
-                        </div>
-                        <div class="info-restaurante">
-                            <strong>${r.nombre}</strong>
-                            <span>📍 ${r.ubicacion}</span>
-                        </div>
-                    </div>
-
-                    <div class="imagen-comida">
-                        <img src="${r.imagenFondo || ''}" alt="${r.nombre}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600'">
-                    </div>
-
-                    <div class="acciones-post">
-                        <button class="btn-icon ${isLiked ? 'liked' : ''}" onclick="toggleLike('${idRest}', this)" title="Me gusta">
-                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        </button>
-                        <button class="btn-icon" onclick="abrirComentario('${r.nombre}')" title="Comentar">
-                            <svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg>
-                        </button>
-                        <button class="btn-icon" onclick="compartirPost('${r.nombre}')" title="Compartir">
-                            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-                        </button>
-                        <button class="btn-icon btn-guardar-ig ${isSaved ? 'saved' : ''}" onclick="toggleGuardar('${idRest}', this)" title="Guardar">
-                            <svg viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
-                        </button>
-                    </div>
-
-                    <div class="contenido-post">
-                        <div class="calificacion-post">⭐ ${r.calificacion}</div>
-                        <h2>${r.nombre}</h2>
-                        <p>${r.descripcion}</p>
-                        <div class="grupo-acciones-card">
-                            <button class="boton-principal" onclick="verRestaurante('${idRest}')">Ver restaurante →</button>
-                            <button class="boton-whatsapp" onclick="abrirWhatsApp('${r.whatsapp}', '${r.nombre}')">💬 WhatsApp</button>
-                        </div>
-                    </div>
-                </article>
-            `;
-        });
-
-        contenedor.innerHTML = html;
-        if (contenedorSeccion) contenedorSeccion.innerHTML = html;
-
-    } catch (error) {
-        console.warn("API NestJS no disponible, usando fallback local:", error);
-        restaurantesCargadosAPI = Object.values(restaurantesBD);
-        let htmlFallback = '';
-        Object.values(restaurantesBD).forEach(r => {
-            htmlFallback += `
-                <article class="post-restaurante" data-categoria="${r.categoriaKey}">
-                    <div class="contenido-post" style="padding-top:16px;">
-                        <h2>${r.nombre}</h2>
-                        <p>${r.descripcion}</p>
-                        <button class="boton-principal" onclick="verRestaurante('${r.id}')">Ver restaurante →</button>
-                    </div>
-                </article>
-            `;
-        });
-        contenedor.innerHTML = htmlFallback;
-    }
+function verificarSesion() {
+  const usuario = localStorage.getItem('foodly_usuario');
+  if (usuario) {
+    document.getElementById('pantalla-login').classList.add('hidden');
+    document.getElementById('pantalla-app').classList.remove('hidden');
+  }
 }
 
-function toggleLike(id, btn) {
-    likes[id] = !likes[id];
-    btn.classList.toggle('liked', likes[id]);
+// Botón Inicio
+function irAlInicio() {
+  document.getElementById('buscador').value = '';
+  categoriaActual = "Todos";
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  document.querySelector('.chip[data-categoria="Todos"]').classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  renderizarTarjetas();
 }
 
-function abrirComentario(nombre) {
-    alert(`Comentarios para ${nombre}: ¡Escribe tu opinión o reseña!`);
+// Renderizar tarjetas en el Feed
+function renderizarTarjetas() {
+  const contenedor = document.getElementById('contenedor-restaurantes');
+  const filtroTexto = document.getElementById('buscador').value.toLowerCase();
+
+  const filtrados = restaurantesBD.filter(r => {
+    const coincideCat = categoriaActual === "Todos" || r.categoria === categoriaActual;
+    const coincideTxt = r.nombre.toLowerCase().includes(filtroTexto) || r.descripcion.toLowerCase().includes(filtroTexto);
+    return coincideCat && coincideTxt;
+  });
+
+  contenedor.innerHTML = filtrados.map(r => {
+    const esFav = favoritos.includes(r.id);
+    const esGuardado = guardados.includes(r.id);
+    const esRepost = reposts.includes(r.id);
+
+    const likesNum = r.likesCount + (esFav ? 1 : 0);
+    const repostsNum = r.repostsCount + (esRepost ? 1 : 0);
+    const commentsNum = (comentariosBD[r.id] ? comentariosBD[r.id].length : r.commentsCount);
+
+    return `
+      <article class="card-restaurante">
+        <div class="card-header">
+          <img src="${r.logo}" alt="${r.nombre}" class="avatar-logo">
+          <div class="header-info">
+            <h3>${r.nombre}</h3>
+            <p>📍 ${r.ubicacion}</p>
+          </div>
+        </div>
+
+        <img src="${r.portada}" alt="Portada ${r.nombre}" class="card-banner">
+
+        <!-- Barra de acciones estilo exacto de la imagen -->
+        <div class="card-actions-bar">
+          <div class="left-icons">
+            <button class="action-item ${esFav ? 'liked' : ''}" onclick="toggleFavorito('${r.id}')" title="Me gusta">
+              <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+              <span>${likesNum}</span>
+            </button>
+
+            <button class="action-item" onclick="abrirModalComentarios('${r.id}')" title="Comentarios">
+              <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              <span>${commentsNum}</span>
+            </button>
+
+            <button class="action-item ${esRepost ? 'reposted' : ''}" onclick="toggleRepost('${r.id}')" title="Repostear">
+              <svg viewBox="0 0 24 24"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+              <span>${repostsNum}</span>
+            </button>
+
+            <button class="action-item" onclick="compartirRestaurante('${r.nombre}')" title="Enviar">
+              <svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            </button>
+          </div>
+
+          <button class="action-item ${esGuardado ? 'saved' : ''}" onclick="toggleGuardado('${r.id}')" title="Guardar">
+            <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          </button>
+        </div>
+
+        <div class="card-body-info">
+          <div class="badge-row">
+            <span class="rating-badge">★ ${r.calificacion}</span>
+            <span class="status-badge ${r.abierto ? 'open' : 'closed'}">
+              ${r.abierto ? '🟢 Abierto ahora' : '🔴 Cerrado'}
+            </span>
+          </div>
+
+          <p class="card-desc"><strong>${r.nombre}</strong> ${r.descripcion}</p>
+
+          <div class="button-group">
+            <button class="btn-primary" onclick="abrirModalDetalle('${r.id}')">Ver restaurante →</button>
+            <a href="https://wa.me/${r.whatsapp.replace(/\+/g, '')}?text=Hola%20${encodeURIComponent(r.nombre)}" target="_blank" class="btn-whatsapp">
+              📲 WhatsApp
+            </a>
+          </div>
+        </div>
+      </article>
+    `;
+  }).join('');
 }
 
-function compartirPost(nombre) {
-    alert(`¡Enlace para compartir de ${nombre} copiado al portapapeles!`);
+// Favoritos, Guardados, Reposts
+function toggleFavorito(id) {
+  favoritos = favoritos.includes(id) ? favoritos.filter(f => f !== id) : [...favoritos, id];
+  localStorage.setItem('foodly_favoritos', JSON.stringify(favoritos));
+  renderizarTarjetas();
 }
 
-function toggleGuardar(id, btn) {
-    const idx = guardados.indexOf(id);
-    if (idx > -1) {
-        guardados.splice(idx, 1);
-        if (btn) btn.classList.remove('saved');
-    } else {
-        guardados.push(id);
-        if (btn) btn.classList.add('saved');
-    }
-    renderizarGuardados();
+function toggleGuardado(id) {
+  guardados = guardados.includes(id) ? guardados.filter(g => g !== id) : [...guardados, id];
+  localStorage.setItem('foodly_guardados', JSON.stringify(guardados));
+  renderizarTarjetas();
 }
 
-function renderizarGuardados() {
-    const contenedor = document.getElementById('lista-guardados');
-    if (!contenedor) return;
+function toggleRepost(id) {
+  reposts = reposts.includes(id) ? reposts.filter(r => r !== id) : [...reposts, id];
+  localStorage.setItem('foodly_reposts', JSON.stringify(reposts));
+  renderizarTarjetas();
+}
 
-    if (guardados.length === 0) {
-        contenedor.innerHTML = '<p class="texto-vacio">No has guardado ningún restaurante aún.</p>';
-        return;
-    }
+function compartirRestaurante(nombre) {
+  if (navigator.share) {
+    navigator.share({ title: 'Foodly', text: `¡Mira el restaurante ${nombre} en Foodly!`, url: window.location.href });
+  } else {
+    navigator.clipboard.writeText(window.location.href);
+    alert(`Enlace de ${nombre} copiado al portapapeles.`);
+  }
+}
 
-    let html = '';
-    guardados.forEach(id => {
-        const r = restaurantesCargadosAPI.find(item => (item._id === id || item.id === id)) || restaurantesBD[id];
-        if (r) {
-            html += `
-                <article class="post-restaurante">
-                    <div class="contenido-post" style="padding-top:16px;">
-                        <h2>${r.nombre}</h2>
-                        <p>${r.descripcion}</p>
-                        <button class="boton-principal" onclick="verRestaurante('${r._id || r.id}')">Ver tarjeta →</button>
-                    </div>
-                </article>
-            `;
-        }
+// Comentarios
+function abrirModalComentarios(id) {
+  restauranteComentarioId = id;
+  const rest = restaurantesBD.find(r => r.id === id);
+  document.getElementById('comentarios-titulo').textContent = `Comentarios - ${rest.nombre}`;
+  renderizarComentarios();
+  document.getElementById('modal-comentarios').classList.add('active');
+}
+
+function cerrarModalComentarios() {
+  document.getElementById('modal-comentarios').classList.remove('active');
+}
+
+function renderizarComentarios() {
+  const lista = document.getElementById('lista-comentarios');
+  const items = comentariosBD[restauranteComentarioId] || ["¡Excelente servicio!", "Muy recomendada la comida."];
+  lista.innerHTML = items.map(c => `<div class="comentario-item">💬 ${c}</div>`).join('');
+}
+
+function agregarComentario() {
+  const input = document.getElementById('input-nuevo-comentario');
+  if (!input.value.trim()) return;
+
+  if (!comentariosBD[restauranteComentarioId]) {
+    comentariosBD[restauranteComentarioId] = ["¡Excelente servicio!", "Muy recomendada la comida."];
+  }
+  comentariosBD[restauranteComentarioId].push(input.value.trim());
+  localStorage.setItem('foodly_comentarios', JSON.stringify(comentariosBD));
+  input.value = '';
+  renderizarComentarios();
+  renderizarTarjetas();
+}
+
+// Modo Oscuro
+function inicializarTema() {
+  const btnTheme = document.getElementById('btn-theme');
+  const themeIcon = document.getElementById('theme-icon');
+  const tema = localStorage.getItem('foodly_theme') || 'light';
+
+  document.documentElement.setAttribute('data-theme', tema);
+  themeIcon.textContent = tema === 'dark' ? '☯︎' : '☯︎';
+
+  btnTheme.addEventListener('click', () => {
+    const actual = document.documentElement.getAttribute('data-theme');
+    const nuevo = actual === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', nuevo);
+    localStorage.setItem('foodly_theme', nuevo);
+    themeIcon.textContent = nuevo === 'dark' ? '☯︎' : '☯︎';
+  });
+}
+
+// Filtros y Buscador
+function configurarBuscadorYFiltros() {
+  document.getElementById('buscador').addEventListener('input', renderizarTarjetas);
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', (e) => {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      e.target.classList.add('active');
+      categoriaActual = e.target.dataset.categoria;
+      renderizarTarjetas();
     });
-    contenedor.innerHTML = html;
+  });
+  document.getElementById('btn-cerrar-modal').addEventListener('click', () => {
+    document.getElementById('modal-detalle').classList.remove('active');
+  });
 }
 
-// DETALLE DEL RESTAURANTE
-function verRestaurante(id) {
-    const r = restaurantesCargadosAPI.find(item => (item._id === id || item.id === id)) || restaurantesBD[id];
-    if (!r) {
-        alert("Restaurante no encontrado.");
-        return;
-    }
+// Modal de Detalle Estilo Tarjeta Completa
+function abrirModalDetalle(id) {
+  const r = restaurantesBD.find(item => item.id === id);
+  if (!r) return;
 
-    document.getElementById('detalle-nombre').innerText = r.nombre;
-    document.getElementById('detalle-categoria').innerText = r.categoria;
-    document.getElementById('detalle-descripcion').innerText = r.descripcion;
-    document.getElementById('detalle-calificacion').innerText = `⭐ ${r.calificacion}`;
-    document.getElementById('detalle-ubicacion').innerText = r.ubicacion;
-    document.getElementById('detalle-direccion').innerText = r.direccion;
-    document.getElementById('detalle-telefono').innerText = r.telefono;
-    document.getElementById('detalle-whatsapp').innerText = `+${r.whatsapp}`;
+  const esFav = favoritos.includes(r.id);
+  const modalContenido = document.getElementById('modal-contenido');
 
-    const logoImg = document.getElementById('detalle-logo-img');
-    const logoText = document.getElementById('detalle-avatar-text');
-    logoImg.style.display = 'block';
-    logoText.style.display = 'none';
-    logoImg.src = r.fotoPerfil || '';
-    logoText.innerText = r.avatarText || 'FD';
+  modalContenido.innerHTML = `
+    <div class="modal-banner-container">
+      <img src="${r.portada}" class="modal-banner" alt="Portada">
+      <img src="${r.logo}" class="modal-logo-overlay" alt="Logo">
+    </div>
 
-    const banner = document.getElementById('detalle-banner');
-    banner.src = r.imagenFondo || '';
-    banner.onerror = function() {
-        this.src = 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800';
-    };
+    <div class="modal-body">
+      <div class="modal-title-row">
+        <h2>${r.nombre}</h2>
+        <span class="rating-badge">⭐ ${r.calificacion}</span>
+      </div>
 
-    const contenedorPlatos = document.getElementById('detalle-platos');
-    let htmlPlatos = '';
-    if (r.platos && r.platos.length > 0) {
-        r.platos.forEach(p => {
-            htmlPlatos += `
-                <div class="plato-card">
-                    <div class="plato-header">
-                        <strong>${p.nombre}</strong>
-                        <span class="plato-precio">${p.precio}</span>
-                    </div>
-                    <p>${p.desc}</p>
-                </div>
-            `;
-        });
-    }
-    contenedorPlatos.innerHTML = htmlPlatos;
+      <span class="category-badge">${r.categoria}</span>
 
-    telefonoDetalleActual = r.whatsapp;
-    nombreDetalleActual = r.nombre;
+      <p style="margin-top: 12px; font-size: 0.9rem; color: var(--text-muted);">${r.descripcion}</p>
 
-    mostrarSeccion('detalle-restaurante');
+      <div class="info-box">
+        <p>📍 <strong>Ubicación:</strong> ${r.ubicacion}</p>
+        <p>🏠 <strong>Dirección:</strong> ${r.direccion}</p>
+        <button class="btn-mapa" onclick="window.open('https://www.google.com/maps/search/?api=1&query=${r.lat},${r.lng}', '_blank')">
+          🗺️ Cómo llegar (Abrir Mapa)
+        </button>
+        <p style="margin-top: 8px;">📞 <strong>Teléfono:</strong> ${r.telefono}</p>
+        <p>💬 <strong>WhatsApp:</strong> ${r.whatsapp}</p>
+      </div>
+
+      <div class="menu-section">
+        <h4>🍽️ Platos Principales</h4>
+        ${r.platos.map(p => `
+          <div class="menu-item-card">
+            <div class="menu-item-header">
+              <span class="menu-item-title">${p.nombre}</span>
+              <span class="menu-item-price">${p.precio}</span>
+            </div>
+            <p class="menu-item-desc">${p.desc}</p>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="modal-action-btns">
+        <button class="btn-fav-modal" onclick="toggleFavoritoModal('${r.id}')" id="btn-modal-fav">
+          ${esFav ? '❤️ Guardado' : '♡ Guardar en Favoritos'}
+        </button>
+
+        <a href="https://wa.me/${r.whatsapp.replace(/\+/g, '')}?text=Hola%20${encodeURIComponent(r.nombre)},%20quisiera%20hacer%20un%20pedido." target="_blank" class="btn-ws-modal">
+          <span>Contactar por</span>
+          <strong>WhatsApp</strong>
+        </a>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('modal-detalle').classList.add('active');
 }
 
-function volverAListaRestaurantes() {
-    mostrarSeccion('inicio');
+function toggleFavoritoModal(id) {
+  toggleFavorito(id);
+  const esFav = favoritos.includes(id);
+  const btn = document.getElementById('btn-modal-fav');
+  if (btn) {
+    btn.innerText = esFav ? '❤️ Guardado' : '♡ Guardar en Favoritos';
+  }
 }
-
-// WHATSAPP
-function abrirWhatsApp(numero, nombre) {
-    if (!numero) {
-        alert("Este restaurante no tiene WhatsApp disponible.");
-        return;
-    }
-    const numLimpio = numero.replace(/\D/g, '');
-    const msg = encodeURIComponent(`¡Hola! Quisiera más información o hacer un pedido en ${nombre}.`);
-    window.open(`https://wa.me/${numLimpio}?text=${msg}`, '_blank');
-}
-
-function abrirWhatsAppDesdeDetalle() {
-    abrirWhatsApp(telefonoDetalleActual, nombreDetalleActual);
-}
-
-// AUTENTICACIÓN LOCAL / CAPTCHA / SSO
-async function iniciarSesion(event) {
-    event.preventDefault();
-
-    const captchaRes = grecaptcha.getResponse(0);
-    if (!captchaRes) {
-        alert("⚠️ Completa la casilla 'No soy un robot' para continuar.");
-        return;
-    }
-
-    const correo = document.getElementById('login-correo').value;
-    const contrasena = document.getElementById('login-contrasena').value;
-
-    try {
-        // Petición al endpoint NestJS de autenticación
-        const res = await fetch('/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ correo, contrasena })
-        });
-        const data = await res.json();
-
-        if (data.mfaRequired) {
-            const mfaCode = prompt(`${data.message}\n\nIngresa el código MFA (Usa 123456):`);
-            if (!mfaCode) return;
-
-            const resMfa = await fetch('/auth/mfa/verify', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ mfaSessionToken: data.mfaSessionToken, code: mfaCode })
-            });
-            const dataMfa = await resMfa.json();
-
-            if (dataMfa.access_token) {
-                localStorage.setItem('jwt_token', dataMfa.access_token);
-                alert("¡Autenticación exitosa! Token JWT emitido.");
-            }
-        }
-    } catch (err) {
-        console.warn("Backend local offline, continuando en modo cliente:", err);
-    }
-
-    mostrarPantalla('pantalla-home');
-    mostrarSeccion('inicio');
-    renderizarFeed();
-}
-
-function registrarUsuario(event) {
-    event.preventDefault();
-
-    const captchaRes = grecaptcha.getResponse(1);
-    if (!captchaRes) {
-        alert("⚠️ Completa la casilla 'No soy un robot' para continuar.");
-        return;
-    }
-
-    alert("¡Cuenta registrada con éxito!");
-    mostrarPantalla('pantalla-home');
-    mostrarSeccion('inicio');
-    renderizarFeed();
-}
-
-function handleGoogleLogin(response) {
-    mostrarPantalla('pantalla-home');
-    mostrarSeccion('inicio');
-    renderizarFeed();
-}
-
-async function iniciarSesionMicrosoft() {
-    try {
-        if (!msalInstance) {
-            alert("¡Autenticación con Microsoft SSO exitosa (Modo Demo)!");
-            mostrarPantalla('pantalla-home');
-            mostrarSeccion('inicio');
-            renderizarFeed();
-            return;
-        }
-
-        const loginResponse = await msalInstance.loginPopup({
-            scopes: ["User.Read", "email"]
-        });
-
-        alert(`¡Bienvenido ${loginResponse.account.name || 'Usuario'} vía Microsoft!`);
-        mostrarPantalla('pantalla-home');
-        mostrarSeccion('inicio');
-        renderizarFeed();
-    } catch (error) {
-        console.error("Error al iniciar sesión con Microsoft:", error);
-        mostrarPantalla('pantalla-home');
-        mostrarSeccion('inicio');
-        renderizarFeed();
-    }
-}
-
-// FILTROS Y BUSCADOR
-function filtrarCategoria(cat, btn) {
-    document.querySelectorAll('.categoria').forEach(b => b.classList.remove('categoria-activa'));
-    btn.classList.add('categoria-activa');
-
-    document.querySelectorAll('#feed-restaurantes .post-restaurante').forEach(post => {
-        if (cat === 'todos' || post.dataset.categoria === cat) {
-            post.style.display = 'block';
-        } else {
-            post.style.display = 'none';
-        }
-    });
-}
-
-function buscarRestaurantes() {
-    const query = document.getElementById('buscador-restaurantes').value.toLowerCase();
-    document.querySelectorAll('#feed-restaurantes .post-restaurante').forEach(post => {
-        const texto = post.innerText.toLowerCase();
-        post.style.display = texto.includes(query) ? 'block' : 'none';
-    });
-}
-
-function guardarDesdeDetalle() {
-    alert("Restaurante guardado en tus favoritos.");
-}
-
-function cambiarUbicacion() {
-    alert("Ubicación actual: Bello, Antioquia.");
-}
-
-// INICIALIZACIÓN
-window.addEventListener('DOMContentLoaded', () => {
-    mostrarPantalla('pantalla-login');
-});

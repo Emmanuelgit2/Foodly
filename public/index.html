@@ -1,284 +1,132 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Foodly - Descubre nuevos sabores</title>
-
-    <link rel="stylesheet" href="style.css">
-
-    <!-- SDKs Oficiales: Google Sign-In, reCAPTCHA y Microsoft Entra ID (MSAL.js) -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-    <script src="https://alcdn.msauth.net/browser/2.35.0/js/msal-browser.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Foodly - Descubre los mejores sabores</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
-
 <body>
 
-    <!-- ========================= -->
-    <!-- LOGIN (PANTALLA DE INICIO OBLIGATORIA) -->
-    <!-- ========================= -->
+  <!-- Vista 1: Login / Autenticación -->
+  <div id="pantalla-login" class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="logo-brand center">
+          <span class="brand-icon">🍽️</span>
+          <span class="brand-name">Foodly</span>
+        </div>
+        <p>Ingresa a tu cuenta para explorar los mejores restaurantes</p>
+      </div>
 
-    <section id="pantalla-login" class="pantalla">
-
-        <div class="tarjeta-formulario">
-
-            <div class="logo-foodly" onclick="mostrarPantalla('pantalla-login')">Foodly</div>
-
-            <h2>Bienvenido de nuevo</h2>
-
-            <p class="texto-formulario">Ingresa para descubrir nuevos sabores.</p>
-
-            <form id="form-login" onsubmit="iniciarSesion(event)">
-
-                <label for="login-correo">Correo electrónico</label>
-                <input type="email" id="login-correo" placeholder="correo@ejemplo.com" required>
-
-                <label for="login-contrasena">Contraseña</label>
-                <input type="password" id="login-contrasena" placeholder="Contraseña" required>
-
-                <!-- reCAPTCHA OBLIGATORIO CON SITE KEY REAL -->
-                <div class="contenedor-recaptcha">
-                    <div class="g-recaptcha" data-sitekey="6LdKLwIuAAAAADWNwY1jp-eHayZgeJhOumkFc37a"></div>
-                </div>
-
-                <button type="submit" class="boton-principal">Iniciar sesión</button>
-
-            </form>
-
-            <div class="separador-o">
-                <span>o continúa con</span>
-            </div>
-
-            <!-- BOTÓN OFICIAL GOOGLE LOGIN CON CLIENT ID REAL -->
-            <div id="g_id_onload"
-                 data-client_id="46704747268-c0vgolsbqbhh10b89en9cug1jc34utpe.apps.googleusercontent.com"
-                 data-callback="handleGoogleLogin">
-            </div>
-            <div class="g_id_signin" data-type="standard" data-width="100%"></div>
-
-            <!-- BOTÓN OFICIAL MICROSOFT SSO -->
-            <button type="button" class="boton-microsoft" onclick="iniciarSesionMicrosoft()">
-                <svg viewBox="0 0 23 23" class="icono-ms"><path fill="#f35325" d="M1 1h10v10H1z"/><path fill="#81bc06" d="M12 1h10v10H12z"/><path fill="#05a6f0" d="M1 12h10v10H1z"/><path fill="#ffba08" d="M12 12h10v10H12z"/></svg>
-                Iniciar sesión con Microsoft
-            </button>
-
-            <p class="texto-registro">¿No tienes una cuenta?</p>
-
-            <button class="boton-secundario" onclick="mostrarPantalla('pantalla-registro')">
-                Crear cuenta
-            </button>
-
+      <form id="form-login" onsubmit="procesarLogin(event)">
+        <div class="input-group">
+          <label for="login-email">Correo Electrónico</label>
+          <input type="email" id="login-email" placeholder="usuario@ejemplo.com" required>
         </div>
 
-    </section>
-
-
-    <!-- ========================= -->
-    <!-- REGISTRO -->
-    <!-- ========================= -->
-
-    <section id="pantalla-registro" class="pantalla oculto">
-
-        <div class="tarjeta-formulario">
-
-            <button class="boton-regresar" onclick="mostrarPantalla('pantalla-login')">← Regresar</button>
-
-            <div class="logo-foodly">Foodly</div>
-
-            <h2>Crear cuenta</h2>
-
-            <p class="texto-formulario">Únete a Foodly y descubre nuevos sabores.</p>
-
-            <form id="form-registro" onsubmit="registrarUsuario(event)">
-
-                <label for="registro-nombre">Nombre</label>
-                <input type="text" id="registro-nombre" placeholder="Tu nombre" required>
-
-                <label for="registro-apellido">Apellido</label>
-                <input type="text" id="registro-apellido" placeholder="Tu apellido" required>
-
-                <label for="registro-cedula">Cédula</label>
-                <input type="text" id="registro-cedula" placeholder="Número de documento" required>
-
-                <label for="registro-correo">Correo electrónico</label>
-                <input type="email" id="registro-correo" placeholder="correo@ejemplo.com" required>
-
-                <label for="registro-contrasena">Contraseña</label>
-                <input type="password" id="registro-contrasena" placeholder="Crea una contraseña" required>
-
-                <div class="contenedor-recaptcha">
-                    <div class="g-recaptcha" data-sitekey="6LdKLwIuAAAAADWNwY1jp-eHayZgeJhOumkFc37a"></div>
-                </div>
-
-                <button type="submit" class="boton-principal">Crear cuenta</button>
-
-            </form>
-
+        <div class="input-group">
+          <label for="login-password">Contraseña</label>
+          <input type="password" id="login-password" placeholder="••••••••" required>
         </div>
 
-    </section>
+        <div class="captcha-box">
+          <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
+        </div>
 
+        <button type="submit" class="btn-primary full-width">Iniciar Sesión</button>
+      </form>
 
-    <!-- ========================= -->
-    <!-- HOME FOODLY -->
-    <!-- ========================= -->
+      <div class="divider"><span>o continúa con</span></div>
 
-    <section id="pantalla-home" class="pantalla oculto">
+      <div class="social-login-group">
+        <button class="btn-social google" onclick="loginSocial('Google')">
+          <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google">
+          Google
+        </button>
+        <button class="btn-social microsoft" onclick="loginSocial('Microsoft')">
+          <img src="https://www.svgrepo.com/show/448239/microsoft.svg" alt="Microsoft">
+          Microsoft
+        </button>
+      </div>
 
-        <!-- NAVBAR -->
-        <nav class="navbar">
-            <div class="navbar-logo" onclick="irAlInicio()" title="Volver al inicio">Foodly</div>
-            <div class="navbar-menu">
-                <button onclick="mostrarSeccion('inicio')">Inicio</button>
-                <button onclick="mostrarSeccion('explorar')">Explorar</button>
-                <button onclick="mostrarSeccion('restaurantes')">Restaurantes</button>
-                <button onclick="mostrarSeccion('guardados')">Guardados</button>
-                <button onclick="mostrarSeccion('perfil')">Perfil</button>
-                <button class="btn-salir" onclick="cerrarSesion()">Salir</button>
-            </div>
-        </nav>
+      <p class="login-footer">
+        ¿No tienes cuenta? <a href="#" onclick="alert('Funcionalidad de registro próximamente')">Regístrate gratis</a>
+      </p>
+    </div>
+  </div>
 
-        <!-- INICIO -->
-        <main id="seccion-inicio" class="seccion-home">
+  <!-- Vista 2: Aplicación Principal -->
+  <div id="pantalla-app" class="app-container hidden">
+    <header class="navbar">
+      <div class="logo-brand clickable" onclick="irAlInicio()" title="Ir al inicio">
+        <span class="brand-icon">🍽️</span>
+        <span class="brand-name">Foodly</span>
+      </div>
 
-            <!-- RECUADRO DE BIENVENIDA -->
-            <div class="encabezado-feed-card">
-                <span class="etiqueta-foodly">FOODLY</span>
-                <h1>Descubre nuevos sabores</h1>
-                <p>Explora restaurantes y encuentra tu próximo lugar favorito.</p>
-            </div>
+      <div class="nav-right">
+        <button id="btn-theme" class="btn-theme-toggle" title="Cambiar tema">
+          <span id="theme-icon">🌙</span>
+        </button>
+        <div class="user-location">
+          📍 <span>Bello, Antioquia</span>
+        </div>
+        <button class="btn-logout" onclick="cerrarSesion()" title="Cerrar sesión">🚪 Exit</button>
+      </div>
+    </header>
 
-            <!-- BUSCADOR -->
-            <div class="barra-busqueda">
-                <input type="text" id="buscador-restaurantes" placeholder="Buscar restaurantes o comidas..." oninput="buscarRestaurantes()">
-                <button onclick="cambiarUbicacion()" title="Cambiar ubicación">📍</button>
-            </div>
+    <main class="main-container">
+      <section class="hero-section">
+        <h1>¿Qué se te antoja hoy?</h1>
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="buscador" placeholder="Buscar restaurante, plato o sabor...">
+        </div>
 
-            <!-- CATEGORÍAS -->
-            <div class="categorias">
-                <button class="categoria categoria-activa" onclick="filtrarCategoria('todos', this)">Todos</button>
-                <button class="categoria" onclick="filtrarCategoria('colombiana', this)">Colombiana</button>
-                <button class="categoria" onclick="filtrarCategoria('parrilla', this)">Parrilla</button>
-                <button class="categoria" onclick="filtrarCategoria('hamburguesas', this)">Hamburguesas</button>
-                <button class="categoria" onclick="filtrarCategoria('mexicana', this)">Mexicana</button>
-            </div>
+        <div class="categorias-chips" id="contenedor-chips">
+          <button class="chip active" data-categoria="Todos">✨ Todos</button>
+          <button class="chip" data-categoria="Colombiana">🇨🇴 Colombiana</button>
+          <button class="chip" data-categoria="Hamburguesas">🍔 Hamburguesas</button>
+          <button class="chip" data-categoria="Parrilla">🥩 Parrilla</button>
+          <button class="chip" data-categoria="Mexicana">🌮 Mexicana</button>
+        </div>
+      </section>
 
-            <!-- FEED DINÁMICO -->
-            <div id="feed-restaurantes" class="feed-restaurantes"></div>
+      <section class="feed-section">
+        <h2 class="section-title">Restaurantes Destacados</h2>
+        <div class="grid-restaurantes" id="contenedor-restaurantes">
+          <!-- Tarjetas del feed dinámicas -->
+        </div>
+      </section>
+    </main>
+  </div>
 
-        </main>
+  <!-- Modal Detalle Completo del Restaurante -->
+  <div class="modal-overlay" id="modal-detalle">
+    <div class="modal-card">
+      <button class="btn-cerrar" id="btn-cerrar-modal">&times;</button>
+      <div id="modal-contenido">
+        <!-- Relleno por JS con la tarjeta detallada -->
+      </div>
+    </div>
+  </div>
 
-        <!-- EXPLORAR -->
-        <section id="seccion-explorar" class="seccion-home oculto">
-            <div class="pagina-simple">
-                <span class="etiqueta-foodly">EXPLORAR</span>
-                <h1>Explora nuevos sabores</h1>
-                <p>Busca restaurantes por categoría, ubicación o tipo de comida.</p>
-                <button class="boton-principal" onclick="mostrarSeccion('inicio')">Explorar restaurantes</button>
-            </div>
-        </section>
+  <!-- Modal de Comentarios -->
+  <div class="modal-overlay" id="modal-comentarios">
+    <div class="modal-card small">
+      <button class="btn-cerrar" onclick="cerrarModalComentarios()">&times;</button>
+      <div class="modal-body">
+        <h3 id="comentarios-titulo">Comentarios</h3>
+        <div id="lista-comentarios" class="lista-comentarios"></div>
+        <div class="input-comentario-box">
+          <input type="text" id="input-nuevo-comentario" placeholder="Escribe un comentario...">
+          <button class="btn-primary" onclick="agregarComentario()">Enviar</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        <!-- RESTAURANTES -->
-        <section id="seccion-restaurantes" class="seccion-home oculto">
-            <div class="pagina-simple">
-                <span class="etiqueta-foodly">RESTAURANTES</span>
-                <h1>Restaurantes</h1>
-                <p>Conoce todos los establecimientos registrados en Foodly.</p>
-            </div>
-            <div id="lista-restaurantes-seccion" class="feed-restaurantes"></div>
-        </section>
-
-        <!-- GUARDADOS -->
-        <section id="seccion-guardados" class="seccion-home oculto">
-            <div class="pagina-simple">
-                <span class="etiqueta-foodly">GUARDADOS</span>
-                <h1>Tus restaurantes</h1>
-                <p>Aquí encontrarás los restaurantes que has guardado en tus favoritos.</p>
-            </div>
-            <div id="lista-guardados" class="feed-restaurantes"></div>
-        </section>
-
-        <!-- PERFIL -->
-        <section id="seccion-perfil" class="seccion-home oculto">
-            <div class="pagina-simple">
-                <span class="etiqueta-foodly">PERFIL</span>
-                <h1>Mi perfil</h1>
-                <p>Gestiona tu cuenta y explora la plataforma.</p>
-                <button class="boton-principal" onclick="cerrarSesion()">Cerrar sesión</button>
-            </div>
-        </section>
-
-        <!-- TARJETA DE PRESENTACIÓN / DETALLE -->
-        <section id="seccion-detalle-restaurante" class="seccion-home oculto">
-            <div class="detalle-contenedor">
-
-                <button class="boton-regresar-inline" onclick="volverAListaRestaurantes()">← Volver al inicio</button>
-
-                <div class="tarjeta-presentacion">
-
-                    <div class="portada-restaurante">
-                        <img id="detalle-banner" src="" alt="Portada del restaurante">
-                        <img id="detalle-logo-img" class="avatar-perfil-img" src="" alt="Logo restaurante" onerror="this.style.display='none'; document.getElementById('detalle-avatar-text').style.display='flex';">
-                        <div class="avatar-perfil-restaurante" id="detalle-avatar-text" style="display:none;">SP</div>
-                    </div>
-
-                    <div class="cuerpo-presentacion">
-
-                        <div class="encabezado-presentacion">
-                            <div>
-                                <h1 id="detalle-nombre">Nombre Restaurante</h1>
-                                <span class="categoria-badge" id="detalle-categoria">Categoría</span>
-                            </div>
-                            <div class="calificacion-badge" id="detalle-calificacion">⭐ 0.0</div>
-                        </div>
-
-                        <p id="detalle-descripcion" class="descripcion-presentacion"></p>
-
-                        <div class="grid-datos">
-                            <div class="dato-item">
-                                <strong>📍 Ubicación:</strong>
-                                <span id="detalle-ubicacion">-</span>
-                            </div>
-                            <div class="dato-item">
-                                <strong>🏠 Dirección:</strong>
-                                <span id="detalle-direccion">-</span>
-                            </div>
-                            <div class="dato-item">
-                                <strong>📞 Teléfono:</strong>
-                                <span id="detalle-telefono">-</span>
-                            </div>
-                            <div class="dato-item">
-                                <strong>💬 WhatsApp:</strong>
-                                <span id="detalle-whatsapp">-</span>
-                            </div>
-                        </div>
-
-                        <h3 class="titulo-platos">🍽️ Platos Principales</h3>
-                        <div id="detalle-platos" class="grid-platos"></div>
-
-                        <div class="grupo-acciones-card" style="margin-top:20px;">
-                            <button class="boton-principal" onclick="guardarDesdeDetalle()">
-                                ♡ Guardar en Favoritos
-                            </button>
-                            <button id="btn-detalle-wa" class="boton-whatsapp" onclick="abrirWhatsAppDesdeDetalle()">
-                                💬 Contactar por WhatsApp
-                            </button>
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-        </section>
-
-    </section>
-
-    <script src="app.js"></script>
-
+  <script src="app.js"></script>
 </body>
-
 </html>

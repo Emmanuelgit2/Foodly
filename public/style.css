@@ -1,586 +1,679 @@
+:root {
+  --bg-color: #f4f6f8;
+  --card-bg: #ffffff;
+  --text-main: #111111;
+  --text-muted: #666666;
+  --primary-color: #ff5722;
+  --primary-hover: #e64a19;
+  --border-color: #e5e5e5;
+  --info-bg: #f8f9fa;
+  --modal-overlay-bg: rgba(0, 0, 0, 0.6);
+  --shadow-color: rgba(0, 0, 0, 0.08);
+  --icon-color: #0f1419;
+}
+
+[data-theme="dark"] {
+  --bg-color: #0d0e12;
+  --card-bg: #16181d;
+  --text-main: #f1f1f1;
+  --text-muted: #999999;
+  --primary-color: #ff6f43;
+  --primary-hover: #ff5722;
+  --border-color: #272a30;
+  --info-bg: #1f2229;
+  --modal-overlay-bg: rgba(0, 0, 0, 0.85);
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  --icon-color: #ffffff;
+}
+
 * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
-/* FONDO CUIDADOSAMENTE AJUSTADO PARA MAYOR CONTRASTE */
 body {
-    background: #e9ecef;
-    color: #1c1e21;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  min-height: 100vh;
 }
 
-.oculto {
-    display: none !important;
+.hidden {
+  display: none !important;
 }
 
-.pantalla {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+/* Login */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
 }
 
-/* FORMULARIOS LOGIN / REGISTRO */
-.tarjeta-formulario {
-    background: #ffffff;
-    max-width: 400px;
-    margin: auto;
-    padding: 35px 30px;
-    border-radius: 16px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    width: 90%;
-    border: 1px solid #ced4da;
+.login-card {
+  background: var(--card-bg);
+  padding: 32px;
+  border-radius: 20px;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 10px 30px var(--shadow-color);
+  border: 1px solid var(--border-color);
 }
 
-.logo-foodly {
-    font-size: 38px;
-    font-weight: 800;
-    color: #ff5722;
-    margin-bottom: 8px;
-    cursor: pointer;
-    user-select: none;
+.login-header {
+  text-align: center;
+  margin-bottom: 24px;
 }
 
-form {
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-    margin-top: 15px;
+.login-header p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-top: 8px;
 }
 
-label {
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 6px;
-    color: #495057;
+.input-group {
+  margin-bottom: 16px;
 }
 
-input {
-    padding: 12px;
-    margin-bottom: 14px;
-    border: 1px solid #ced4da;
-    border-radius: 8px;
-    font-size: 14px;
-    background: #f8f9fa;
+.input-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 6px;
 }
 
-input:focus {
-    outline: none;
-    border-color: #ff5722;
-    background: #ffffff;
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--info-bg);
+  color: var(--text-main);
+  outline: none;
 }
 
-.contenedor-recaptcha {
-    display: flex;
-    justify-content: center;
-    margin: 10px 0 15px;
+.captcha-box {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: center;
 }
 
-.boton-principal {
-    background-color: #ff5722;
-    color: white;
-    border: none;
-    padding: 12px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    width: 100%;
-    transition: background 0.2s;
-    font-size: 14px;
+.full-width {
+  width: 100%;
 }
 
-.boton-principal:hover {
-    background-color: #e64a19;
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 20px 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
 }
 
-.boton-secundario {
-    background: transparent;
-    color: #ff5722;
-    border: 1.5px solid #ff5722;
-    padding: 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    width: 100%;
-    margin-top: 10px;
+.divider::before, .divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--border-color);
 }
 
-.separador-o {
-    margin: 18px 0;
-    text-align: center;
-    position: relative;
+.divider span {
+  padding: 0 10px;
 }
 
-.separador-o::before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 0; right: 0;
-    height: 1px;
-    background: #ced4da;
+.social-login-group {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
-.separador-o span {
-    background: white;
-    padding: 0 10px;
-    position: relative;
-    color: #6c757d;
-    font-size: 12px;
+.btn-social {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--card-bg);
+  color: var(--text-main);
+  font-weight: 600;
+  cursor: pointer;
 }
 
-/* BOTÓN MICROSOFT SSO */
-.boton-microsoft {
-    background-color: #ffffff;
-    color: #5e5e5e;
-    border: 1px solid #8c8c8c;
-    padding: 10px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 10px;
-    font-size: 14px;
-    transition: background 0.2s, border-color 0.2s;
+.btn-social img {
+  width: 18px;
+  height: 18px;
 }
 
-.boton-microsoft:hover {
-    background-color: #f2f2f2;
-    border-color: #000000;
+.login-footer {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
 }
 
-.icono-ms {
-    width: 18px;
-    height: 18px;
+.login-footer a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
 }
 
-/* NAVBAR Y NAVEGACIÓN SUPERIOR */
+/* Navbar */
 .navbar {
-    background: linear-gradient(135deg, #ff5722 0%, #ff7043 100%);
-    padding: 14px 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4px 12px rgba(255, 87, 34, 0.3);
-    position: sticky;
-    top: 0;
-    z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background-color: var(--card-bg);
+  box-shadow: 0 2px 10px var(--shadow-color);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-.navbar-logo {
-    font-size: 26px;
-    font-weight: 800;
-    color: #ffffff;
-    cursor: pointer;
-    letter-spacing: -0.5px;
-    transition: transform 0.2s;
+.logo-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--primary-color);
 }
 
-.navbar-logo:hover {
-    transform: scale(1.04);
+.logo-brand.clickable {
+  cursor: pointer;
+  user-select: none;
 }
 
-.navbar-menu button {
-    background: none;
-    border: none;
-    margin-left: 12px;
-    cursor: pointer;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.95);
-    font-size: 14px;
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
 
-.navbar-menu .btn-salir {
-    background: rgba(255, 255, 255, 0.2);
-    padding: 6px 14px;
-    border-radius: 20px;
+.btn-theme-toggle {
+  background: var(--info-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.1rem;
 }
 
-/* ENCABEZADO Y TARJETA DEL FEED */
-.seccion-home {
-    max-width: 520px;
-    margin: 20px auto;
-    padding: 0 12px;
+.btn-logout {
+  background: var(--info-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  color: var(--text-main);
+  font-weight: 600;
 }
 
-.encabezado-feed-card {
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 16px;
-    border: 1px solid #ced4da;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    margin-bottom: 20px;
-    text-align: left;
+.user-location {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-muted);
 }
 
-.etiqueta-foodly {
-    background: #ffebe5;
-    color: #ff5722;
-    padding: 3px 10px;
-    border-radius: 12px;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.5px;
+/* Main */
+.main-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px 16px;
 }
 
-.encabezado-feed-card h1 {
-    font-size: 22px;
-    margin: 8px 0 4px;
-    color: #1c1e21;
+.hero-section h1 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+  text-align: center;
 }
 
-.encabezado-feed-card p {
-    font-size: 14px;
-    color: #6c757d;
+.search-box {
+  display: flex;
+  align-items: center;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  margin-bottom: 20px;
 }
 
-/* POSTS DE RESTAURANTE */
-.post-restaurante {
-    background: #ffffff;
-    border-radius: 16px;
-    margin-bottom: 24px;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-    border: 1px solid #ced4da;
+.search-box input {
+  border: none;
+  outline: none;
+  width: 100%;
+  margin-left: 10px;
+  font-size: 1rem;
+  background: transparent;
+  color: var(--text-main);
 }
 
-.post-cabecera {
-    display: flex;
-    align-items: center;
-    padding: 14px;
+.categorias-chips {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-bottom: 24px;
 }
 
-.avatar-restaurante-wrapper {
-    width: 44px;
-    height: 44px;
-    margin-right: 12px;
+.chip {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
-.avatar-img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 1px solid #dee2e6;
+.chip.active, .chip:hover {
+  background: var(--primary-color);
+  color: #ffffff;
+  border-color: var(--primary-color);
 }
 
-.avatar-restaurante-fallback {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #ff5722, #ff8a65);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 14px;
+.section-title {
+  font-size: 1.3rem;
+  margin-bottom: 16px;
 }
 
-.info-restaurante strong {
-    display: block;
-    font-size: 15px;
-    color: #1c1e21;
+/* Card del Feed */
+.card-restaurante {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px var(--shadow-color);
+  margin-bottom: 24px;
 }
 
-.info-restaurante span {
-    font-size: 12px;
-    color: #6c757d;
+.card-header {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  gap: 12px;
 }
 
-.imagen-comida {
-    width: 100%;
-    height: 290px;
-    background: #dee2e6;
+.avatar-logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-color);
 }
 
-.imagen-comida img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.header-info h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
 }
 
-/* ACCIONES DE PUBLICACIÓN ESTILO INSTAGRAM */
-.acciones-post {
-    display: flex;
-    align-items: center;
-    padding: 12px 14px;
-    gap: 14px;
+.header-info p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
 }
 
-.btn-icon {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    display: flex;
-    align-items: center;
+.card-banner {
+  width: 100%;
+  height: 320px;
+  object-fit: cover;
+  display: block;
 }
 
-.btn-icon svg {
-    width: 26px;
-    height: 26px;
-    fill: none;
-    stroke: #1c1e21;
-    stroke-width: 2;
-    transition: transform 0.1s ease;
+/* Barra de acciones estilo Social Media */
+.card-actions-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
 }
 
-.btn-icon:hover svg {
-    transform: scale(1.1);
+.left-icons {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
-.btn-icon.liked svg {
-    fill: #ed4956;
-    stroke: #ed4956;
+.action-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--icon-color);
+  font-weight: 700;
+  font-size: 0.95rem;
 }
 
-.btn-guardar-ig {
-    margin-left: auto;
+.action-item svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: var(--icon-color);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.1s ease;
 }
 
-.btn-guardar-ig.saved svg {
-    fill: #1c1e21;
+.action-item:active svg {
+  transform: scale(1.15);
 }
 
-.contenido-post {
-    padding: 0 14px 16px;
+.action-item.liked svg {
+  fill: #e74c3c;
+  stroke: #e74c3c;
 }
 
-.calificacion-post {
-    font-size: 13px;
-    font-weight: 700;
-    color: #d84315;
-    margin-bottom: 4px;
+.action-item.liked {
+  color: #5dade2;
 }
 
-.contenido-post h2 {
-    font-size: 17px;
-    margin-bottom: 6px;
+.action-item.reposted {
+  color: #f39c12;
 }
 
-.contenido-post p {
-    font-size: 14px;
-    color: #495057;
-    margin-bottom: 14px;
-    line-height: 1.4;
+.action-item.saved svg {
+  fill: var(--icon-color);
 }
 
-.grupo-acciones-card {
-    display: flex;
-    gap: 10px;
+.card-body-info {
+  padding: 0 16px 16px;
 }
 
-.boton-whatsapp {
-    background-color: #25D366;
-    color: white;
-    border: none;
-    padding: 11px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    flex: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    font-size: 14px;
+.badge-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
-.boton-whatsapp:hover {
-    background-color: #128C7E;
+.rating-badge {
+  color: #f39c12;
+  font-weight: 700;
 }
 
-/* TARJETA DE PRESENTACIÓN / DETALLE */
-.tarjeta-presentacion {
-    background: #ffffff;
-    border-radius: 20px;
-    overflow: hidden;
-    margin-top: 15px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-    border: 1px solid #ced4da;
+.status-badge.open {
+  background-color: #1e3a2b;
+  color: #2ecc71;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 
-.portada-restaurante {
-    position: relative;
-    height: 200px;
+.status-badge.closed {
+  background-color: #3a1e1e;
+  color: #e74c3c;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 
-.portada-restaurante img#detalle-banner {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.card-desc {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  line-height: 1.4;
 }
 
-.avatar-perfil-img {
-    position: absolute;
-    bottom: -24px;
-    left: 20px;
-    width: 68px;
-    height: 68px;
-    border-radius: 50%;
-    border: 4px solid #ffffff;
-    object-fit: cover;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+.button-group {
+  display: flex;
+  gap: 10px;
 }
 
-.avatar-perfil-restaurante {
-    position: absolute;
-    bottom: -24px;
-    left: 20px;
-    width: 68px;
-    height: 68px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #ff5722, #ff8a65);
-    color: white;
-    font-size: 24px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 4px solid #ffffff;
+.btn-primary {
+  flex: 2;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
 }
 
-.cuerpo-presentacion {
-    padding: 34px 22px 22px;
+.btn-whatsapp {
+  flex: 1;
+  background-color: #25d366;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
 }
 
-.encabezado-presentacion {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 12px;
+/* Modal Estilo Tarjeta Completa */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--modal-overlay-bg);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
 }
 
-.categoria-badge {
-    display: inline-block;
-    background: #ffebe5;
-    color: #ff5722;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 700;
+.modal-overlay.active {
+  display: flex;
 }
 
-.calificacion-badge {
-    background: #fff3e0;
-    padding: 6px 12px;
-    border-radius: 10px;
-    font-weight: 700;
-    font-size: 15px;
-    color: #e65100;
+.modal-card {
+  background: var(--card-bg);
+  color: var(--text-main);
+  border-radius: 20px;
+  max-width: 520px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  border: 1px solid var(--border-color);
 }
 
-.descripcion-presentacion {
-    color: #495057;
-    margin-bottom: 18px;
-    line-height: 1.5;
+.modal-card.small {
+  max-width: 400px;
+  padding: 20px;
 }
 
-.grid-datos {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
-    background: #f8f9fa;
-    padding: 14px;
-    border-radius: 12px;
-    margin-bottom: 22px;
-    font-size: 13.5px;
-    border: 1px solid #e9ecef;
+.btn-cerrar {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: var(--card-bg);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  font-size: 1.8rem;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  z-index: 10;
 }
 
-.titulo-platos {
-    font-size: 16px;
-    margin-bottom: 10px;
-    color: #1c1e21;
+.modal-banner-container {
+  position: relative;
 }
 
-.grid-platos {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+.modal-banner {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
 }
 
-.plato-card {
-    border: 1px solid #dee2e6;
-    padding: 12px 14px;
-    border-radius: 10px;
-    background: #ffffff;
+.modal-logo-overlay {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--card-bg);
+  position: absolute;
+  bottom: -35px;
+  left: 20px;
+  background-color: var(--card-bg);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
-.plato-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 4px;
+.modal-body {
+  padding: 44px 20px 20px;
 }
 
-.plato-precio {
-    color: #ff5722;
-    font-weight: 700;
+.modal-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.plato-card p {
-    font-size: 13px;
-    color: #6c757d;
+.category-badge {
+  background: #ffebe6;
+  color: #ff5722;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 12px;
+  display: inline-block;
+  margin-top: 4px;
 }
 
-/* BUSCADOR Y FILTROS */
-.barra-busqueda {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
+.info-box {
+  background: var(--info-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin: 16px 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
 }
 
-.barra-busqueda input {
-    flex: 1;
-    margin-bottom: 0;
-    background: #ffffff;
+.btn-mapa {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  background-color: var(--primary-color);
+  color: #ffffff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-.categorias {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 8px;
-    margin-bottom: 18px;
+.menu-section h4 {
+  margin: 16px 0 10px;
+  font-size: 1rem;
 }
 
-.categoria {
-    background: #ffffff;
-    border: 1px solid #ced4da;
-    padding: 8px 16px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 13px;
-    white-space: nowrap;
-    font-weight: 600;
-    color: #495057;
+.menu-item-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 10px;
 }
 
-.categoria-activa {
-    background: #ff5722;
-    color: white;
-    border-color: #ff5722;
+.menu-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
 }
 
-.boton-regresar-inline {
-    background: #ffffff;
-    border: 1px solid #ced4da;
-    padding: 8px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    color: #495057;
-    margin-bottom: 10px;
+.menu-item-title {
+  font-weight: 700;
+  font-size: 0.95rem;
 }
 
-.texto-vacio {
-    text-align: center;
-    padding: 30px;
-    color: #6c757d;
+.menu-item-price {
+  font-weight: 700;
+  color: #ff5722;
+}
+
+.menu-item-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.modal-action-btns {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.btn-fav-modal {
+  flex: 1;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-ws-modal {
+  flex: 1;
+  background-color: #25d366;
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.lista-comentarios {
+  max-height: 200px;
+  overflow-y: auto;
+  margin: 16px 0;
+}
+
+.comentario-item {
+  padding: 8px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.9rem;
+}
+
+.input-comentario-box {
+  display: flex;
+  gap: 8px;
+}
+
+.input-comentario-box input {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--info-bg);
+  color: var(--text-main);
 }

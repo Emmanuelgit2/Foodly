@@ -1,2072 +1,948 @@
+
 package com.example.saborapp
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.content.Intent
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
+import android.net.Uri
 import android.os.Bundle
+import android.os.Looper
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.Image
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.core.content.ContextCompat
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeout
+import coil.compose.AsyncImage
+import kotlin.coroutines.resume
 
-private val Naranja = Color(0xFFFF6B00)
-private val NaranjaClaro = Color(0xFFFFF1E8)
-private val Negro = Color(0xFF171717)
-private val NegroSuave = Color(0xFF252525)
-private val GrisFondo = Color(0xFFF6F6F6)
-private val GrisTexto = Color(0xFF707070)
-private val Blanco = Color.White
-private val Verde = Color(0xFF168A4A)
+private val Orange = Color(0xFFFF6B00)
+private val LocalFoodlyDarkMode = compositionLocalOf { false }
 
-data class Restaurante(
-    val nombre: String,
-    val categoria: String,
-    val descripcion: String,
-    val calificacion: String,
-    val distancia: String,
-    val direccion: String,
-    val horario: String,
-    val telefono: String,
-    val imagen: Int,
-    val productos: List<String>
+@Composable private fun appInk() = if (LocalFoodlyDarkMode.current) Color(0xFFF3F3F3) else Color(0xFF191919)
+@Composable private fun appBackground() = if (LocalFoodlyDarkMode.current) Color(0xFF121212) else Color(0xFFF6F6F6)
+@Composable private fun appSurface() = if (LocalFoodlyDarkMode.current) Color(0xFF202020) else Color.White
+@Composable private fun appMuted() = if (LocalFoodlyDarkMode.current) Color(0xFFB0B0B0) else Color(0xFF747474)
+
+data class Product(
+    val name: String,
+    val image: String,
+    // Precio ficticio de demostración en pesos colombianos; se asigna una vez al iniciar la app.
+    val price: Int = (21..32).random() * 1_000
+)
+
+data class Restaurant(
+    val id: Int,
+    val name: String,
+    val category: String,
+    val location: String,
+    val latitude: Double,
+    val longitude: Double,
+    val address: String,
+    val description: String,
+    val phone: String,
+    val profileImage: String,
+    val products: List<Product>
+)
+
+private fun photo(id: String) =
+    "https://images.unsplash.com/$id?w=900&auto=format&fit=crop&q=85"
+
+private val sampleRestaurants = listOf(
+    Restaurant(
+        id = 1,
+        name = "Sabor Paisa",
+        category = "Comida paisa",
+        location = "Bello",
+        latitude = 6.337,
+        longitude = -75.558,
+        address = "Bello, Antioquia, Colombia",
+        description = "Tradición paisa, sabores auténticos y platos para compartir.",
+        phone = "573001234567",
+        profileImage = photo("photo-1547592180-85f173990554"),
+        products = listOf(
+            Product("Plato de la casa", photo("photo-1547592180-85f173990554")),
+            Product("Hamburguesa artesanal", photo("photo-1568901346375-23c9450c58cd")),
+            Product("Parrilla especial", photo("photo-1544025162-d76694265947")),
+            Product("Arepa con queso", photo("photo-1601050690597-df0568f70950")),
+            Product("Perro caliente", photo("photo-1612392062798-2dba9f5f6a14"))
+        )
+    ),
+    Restaurant(
+        id = 2,
+        name = "La Parrilla del Valle",
+        category = "Parrilla",
+        location = "Laureles",
+        latitude = 6.245,
+        longitude = -75.590,
+        address = "Laureles, Medellín, Antioquia, Colombia",
+        description = "Carnes a la parrilla y preparaciones para disfrutar sin afán.",
+        phone = "573001234568",
+        profileImage = photo("photo-1544025162-d76694265947"),
+        products = listOf(
+            Product("Carne a la parrilla", photo("photo-1544025162-d76694265947")),
+            Product("Costillas", photo("photo-1529193591184-b1d58069ecdd")),
+            Product("Hamburguesa", photo("photo-1568901346375-23c9450c58cd")),
+            Product("Pollo asado", photo("photo-1532550907401-a500c9a57435"))
+        )
+    ),
+    Restaurant(
+        id = 3,
+        name = "Burger House",
+        category = "Hamburguesas",
+        location = "El Poblado",
+        latitude = 6.208,
+        longitude = -75.568,
+        address = "El Poblado, Medellín, Antioquia, Colombia",
+        description = "Hamburguesas artesanales para quienes buscan algo diferente.",
+        phone = "573001234569",
+        profileImage = photo("photo-1568901346375-23c9450c58cd"),
+        products = listOf(
+            Product("Burger clásica", photo("photo-1568901346375-23c9450c58cd")),
+            Product("Burger doble", photo("photo-1553979459-d2229ba7433a")),
+            Product("Papas crocantes", photo("photo-1573080496219-bb080dd4f877")),
+            Product("Burger especial", photo("photo-1550547660-d9450f859349"))
+        )
+    ),
+    Restaurant(
+        id = 4,
+        name = "México en la Esquina",
+        category = "Comida mexicana",
+        location = "Sabaneta",
+        latitude = 6.151,
+        longitude = -75.616,
+        address = "Sabaneta, Antioquia, Colombia",
+        description = "Tacos, colores y sabores inspirados en la cocina mexicana.",
+        phone = "573001234570",
+        profileImage = photo("photo-1551504734-5ee1c4a1479b"),
+        products = listOf(
+            Product("Tacos", photo("photo-1551504734-5ee1c4a1479b")),
+            Product("Burritos", photo("photo-1565299585323-38d6b0865b47")),
+            Product("Nachos", photo("photo-1513456852971-30c0b8199d4d")),
+            Product("Quesadillas", photo("photo-1618040996337-56904b7850b9"))
+        )
+    ),
+    Restaurant(
+        id = 5,
+        name = "Dragón Wok",
+        category = "Comida china",
+        location = "Laureles",
+        latitude = 6.247,
+        longitude = -75.594,
+        address = "Laureles, Medellín, Antioquia, Colombia",
+        description = "Arroces, noodles y sabores orientales preparados al wok.",
+        phone = "573001234571",
+        profileImage = photo("photo-1525755662778-989d0524087e"),
+        products = listOf(
+            Product("Arroz chino especial", photo("photo-1512058564366-18510be2db19")),
+            Product("Pollo agridulce", photo("photo-1546069901-ba9599a7e63c")),
+            Product("Noodles salteados", photo("photo-1569718212165-3a8278d5f624")),
+            Product("Rollitos primavera", photo("photo-1544025162-d76694265947"))
+        )
+    ),
+    Restaurant(
+        id = 6,
+        name = "Rápido y Rico",
+        category = "Comida rápida",
+        location = "El Poblado",
+        latitude = 6.211,
+        longitude = -75.565,
+        address = "El Poblado, Medellín, Antioquia, Colombia",
+        description = "Antojos rápidos: perros, papas y hamburguesas para compartir.",
+        phone = "573001234572",
+        profileImage = photo("photo-1571091718767-18b5b1457add"),
+        products = listOf(
+            Product("Perro caliente", photo("photo-1612392062798-2dba9f5f6a14")),
+            Product("Papas cargadas", photo("photo-1573080496219-bb080dd4f877")),
+            Product("Combo de hamburguesa", photo("photo-1568901346375-23c9450c58cd")),
+            Product("Alitas BBQ", photo("photo-1527477396000-e27163b481c2"))
+        )
+    )
 )
 
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContent {
-            FoodlyApp()
-        }
-    }
-}
-
-@Composable
-fun FoodlyApp() {
-
-    var pantalla by remember {
-        mutableStateOf("splash")
-    }
-
-    var pagina by remember {
-        mutableStateOf("inicio")
-    }
-
-    var restauranteSeleccionado by remember {
-        mutableStateOf<Restaurante?>(null)
-    }
-
-    val favoritos = remember {
-        mutableStateListOf<String>()
-    }
-
-    val restaurantes = remember {
-        listOf(
-            Restaurante(
-                nombre = "Sabor Paisa",
-                categoria = "Comida típica",
-                descripcion = "Sabores tradicionales, comida rápida y platos con esencia paisa.",
-                calificacion = "4.8",
-                distancia = "0.8 km",
-                direccion = "Bello, Antioquia",
-                horario = "11:00 AM - 10:30 PM",
-                telefono = "3116469679",
-                imagen = R.drawable.sabor_paisa,
-                productos = listOf(
-                    "Hamburguesa clásica",
-                    "Perro especial",
-                    "Papas especiales",
-                    "Chuzo artesanal"
-                )
-            ),
-            Restaurante(
-                nombre = "La Parrilla del Valle",
-                categoria = "Parrilla",
-                descripcion = "Carnes a la parrilla y preparaciones para compartir.",
-                calificacion = "4.6",
-                distancia = "1.4 km",
-                direccion = "Bello, Antioquia",
-                horario = "12:00 PM - 10:00 PM",
-                telefono = "3000000000",
-                imagen = R.drawable.parrilla_valle,
-                productos = listOf(
-                    "Parrillada de la casa",
-                    "Churrasco",
-                    "Costillas BBQ",
-                    "Papas criollas"
-                )
-            ),
-            Restaurante(
-                nombre = "Burger House",
-                categoria = "Hamburguesas",
-                descripcion = "Hamburguesas artesanales, papas y combinaciones especiales.",
-                calificacion = "4.7",
-                distancia = "2.1 km",
-                direccion = "Bello, Antioquia",
-                horario = "5:00 PM - 11:00 PM",
-                telefono = "3010000000",
-                imagen = R.drawable.burger_house,
-                productos = listOf(
-                    "Burger House",
-                    "Cheese Burger",
-                    "Bacon Burger",
-                    "Papas cheddar"
-                )
-            ),
-            Restaurante(
-                nombre = "México en la Esquina",
-                categoria = "Mexicana",
-                descripcion = "Una propuesta mexicana con tacos, burritos y sabores intensos.",
-                calificacion = "4.5",
-                distancia = "2.7 km",
-                direccion = "Bello, Antioquia",
-                horario = "5:00 PM - 10:30 PM",
-                telefono = "3020000000",
-                imagen = R.drawable.mexico_esquina,
-                productos = listOf(
-                    "Tacos al pastor",
-                    "Burrito especial",
-                    "Nachos",
-                    "Quesadilla"
-                )
-            )
-        )
-    }
-
-    LaunchedEffect(Unit) {
-        delay(1800)
-        pantalla = "inicio"
-    }
-
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = GrisFondo
-    ) {
-
-        when (pantalla) {
-
-            "splash" -> {
-                SplashPro()
+            var darkMode by rememberSaveable {
+                mutableStateOf(getSharedPreferences("foodly_settings", MODE_PRIVATE).getBoolean("dark_mode", false))
             }
-
-            "inicio" -> {
-                PantallaInicioPro(
-                    onComenzar = {
-                        pantalla = "login"
-                    }
-                )
+            val colors = if (darkMode) {
+                darkColorScheme(primary = Orange, onPrimary = Color.White, background = Color(0xFF121212), surface = Color(0xFF202020))
+            } else {
+                lightColorScheme(primary = Orange, onPrimary = Color.White, background = Color(0xFFF6F6F6), surface = Color.White)
             }
-
-            "login" -> {
-                PantallaLoginPro(
-                    onIngresar = {
-                        pantalla = "app"
-                    }
-                )
-            }
-
-            "app" -> {
-
-                if (restauranteSeleccionado != null) {
-
-                    PantallaRestaurantePro(
-                        restaurante = restauranteSeleccionado!!,
-                        favorito = favoritos.contains(
-                            restauranteSeleccionado!!.nombre
-                        ),
-                        onVolver = {
-                            restauranteSeleccionado = null
+            CompositionLocalProvider(LocalFoodlyDarkMode provides darkMode) {
+                MaterialTheme(colorScheme = colors) {
+                    FoodlyRoot(
+                        darkMode = darkMode,
+                        onToggleDarkMode = {
+                            darkMode = !darkMode
+                            getSharedPreferences("foodly_settings", MODE_PRIVATE).edit()
+                                .putBoolean("dark_mode", darkMode).apply()
                         },
-                        onFavorito = {
-
-                            val nombre = restauranteSeleccionado!!.nombre
-
-                            if (favoritos.contains(nombre)) {
-                                favoritos.remove(nombre)
-                            } else {
-                                favoritos.add(nombre)
-                            }
-                        }
                     )
-
-                } else {
-
-                    Scaffold(
-                        containerColor = GrisFondo,
-                        bottomBar = {
-
-                            BarraNavegacionPro(
-                                paginaActual = pagina,
-                                onPagina = {
-                                    pagina = it
-                                }
-                            )
-                        }
-                    ) { padding ->
-
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(padding)
-                        ) {
-
-                            when (pagina) {
-
-                                "inicio" -> {
-                                    PantallaHomePro(
-                                        restaurantes = restaurantes,
-                                        favoritos = favoritos,
-                                        onRestaurante = {
-                                            restauranteSeleccionado = it
-                                        },
-                                        onFavorito = {
-                                            if (favoritos.contains(it.nombre)) {
-                                                favoritos.remove(it.nombre)
-                                            } else {
-                                                favoritos.add(it.nombre)
-                                            }
-                                        },
-                                        onExplorar = {
-                                            pagina = "explorar"
-                                        }
-                                    )
-                                }
-
-                                "explorar" -> {
-                                    PantallaExplorarPro(
-                                        restaurantes = restaurantes,
-                                        favoritos = favoritos,
-                                        onRestaurante = {
-                                            restauranteSeleccionado = it
-                                        },
-                                        onFavorito = {
-                                            if (favoritos.contains(it.nombre)) {
-                                                favoritos.remove(it.nombre)
-                                            } else {
-                                                favoritos.add(it.nombre)
-                                            }
-                                        }
-                                    )
-                                }
-
-                                "favoritos" -> {
-                                    PantallaFavoritosPro(
-                                        restaurantes = restaurantes,
-                                        favoritos = favoritos,
-                                        onRestaurante = {
-                                            restauranteSeleccionado = it
-                                        }
-                                    )
-                                }
-
-                                "perfil" -> {
-                                    PantallaPerfilPro()
-                                }
-                            }
-                        }
-                    }
                 }
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SplashPro() {
+fun FoodlyRoot(darkMode: Boolean, onToggleDarkMode: () -> Unit) {
+    var page by remember { mutableStateOf("login") }
+    var selected by remember { mutableStateOf<Restaurant?>(null) }
+    var query by remember { mutableStateOf("") }
+    var zone by remember { mutableStateOf("Todas") }
+    var category by remember { mutableStateOf("Todas") }
+    val saved = remember { mutableStateListOf<Int>() }
+    var message by remember { mutableStateOf("") }
+    var pendingGoogleCredential by remember { mutableStateOf<String?>(null) }
+    var turnstileSiteKey by remember { mutableStateOf<String?>(null) }
+    var showCaptcha by remember { mutableStateOf(false) }
+    var isSigningIn by remember { mutableStateOf(false) }
+    var nearbyEnabled by rememberSaveable { mutableStateOf(false) }
+    var userLocation by remember { mutableStateOf<Location?>(null) }
+    var locationMessage by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Blanco),
-        contentAlignment = Alignment.Center
-    ) {
-
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-
-            Image(
-                painter = painterResource(
-                    id = R.drawable.foodly_logo
-                ),
-                contentDescription = "Foodly",
-                modifier = Modifier
-                    .width(240.dp)
-                    .height(180.dp),
-                contentScale = ContentScale.Fit
-            )
-
-            Spacer(
-                modifier = Modifier.height(18.dp)
-            )
-
-            Text(
-                text = "DESCUBRE. COME. DISFRUTA.",
-                color = GrisTexto,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 1.5.sp
-            )
+    val updateLocation: () -> Unit = {
+        coroutineScope.launch {
+            locationMessage = "Buscando tu ubicación..."
+            try {
+                userLocation = getCurrentLocation(context)
+                nearbyEnabled = true
+                locationMessage = "Restaurantes ordenados por cercanía."
+            } catch (error: Exception) {
+                nearbyEnabled = false
+                locationMessage = error.message ?: "No se pudo obtener la ubicación. Revisa que esté activada."
+            }
         }
     }
-}
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { result ->
+        if (result.values.any { it }) updateLocation()
+        else locationMessage = "Permite el acceso a la ubicación para ordenar por cercanía."
+    }
+
+    val zones = listOf("Todas", "Laureles", "El Poblado", "Sabaneta", "Bello")
+    val categories = listOf("Todas") + sampleRestaurants.map { it.category }.distinct()
+
+    val matchingRestaurants = sampleRestaurants.filter { r ->
+        (zone == "Todas" || r.location == zone) &&
+                (category == "Todas" || r.category == category) &&
+                (
+                        query.isBlank() ||
+                                r.name.contains(query, true) ||
+                                r.category.contains(query, true) ||
+                                r.location.contains(query, true) ||
+                                r.products.any { it.name.contains(query, true) }
+                        )
+    }
+    val filtered = if (nearbyEnabled && userLocation != null) {
+        matchingRestaurants.sortedBy { restaurant ->
+            distanceKm(userLocation!!.latitude, userLocation!!.longitude, restaurant.latitude, restaurant.longitude)
+        }
+    } else matchingRestaurants
+    val distances = if (nearbyEnabled && userLocation != null) {
+        filtered.associate { restaurant ->
+            restaurant.id to distanceKm(userLocation!!.latitude, userLocation!!.longitude, restaurant.latitude, restaurant.longitude)
+        }
+    } else emptyMap()
+
+    Scaffold(
+        containerColor = appBackground(),
+        bottomBar = {
+            if (page == "home" || page == "saved") {
+                NavigationBar(containerColor = appSurface()) {
+                    NavigationBarItem(
+                        selected = page == "home",
+                        onClick = { page = "home" },
+                        icon = { Text("⌂", fontSize = 22.sp) },
+                        label = { Text("Explorar") }
+                    )
+                    NavigationBarItem(
+                        selected = page == "saved",
+                        onClick = { page = "saved" },
+                        icon = { Text("♥", fontSize = 20.sp) },
+                        label = { Text("Guardados") }
+                    )
+                    NavigationBarItem(
+                        selected = page == "login",
+                        onClick = { page = "login" },
+                        icon = { Text("●", fontSize = 20.sp) },
+                        label = { Text("Cuenta") }
+                    )
+                }
+            }
+        }
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            when (page) {
+                "login" -> LoginScreen(
+                    onContinue = {
+                        coroutineScope.launch {
+                            isSigningIn = true
+                            message = ""
+                            try {
+                                pendingGoogleCredential = obtenerGoogleIdToken(context)
+                                turnstileSiteKey = obtenerTurnstileSiteKey()
+                                showCaptcha = true
+                            } catch (error: Exception) {
+                                message = error.message
+                                    ?: "No se pudo iniciar sesión con Google."
+                                pendingGoogleCredential = null
+                            } finally {
+                                isSigningIn = false
+                            }
+                        }
+                    },
+                    message = message,
+                    onExplore = { page = "home" },
+                    isLoading = isSigningIn,
+                )
+
+                "home" -> HomeScreen(
+                    query = query,
+                    onQuery = { query = it },
+                    zone = zone,
+                    onZone = { zone = it },
+                    category = category,
+                    onCategory = { category = it },
+                    zones = zones,
+                    categories = categories,
+                    restaurants = filtered,
+                    distances = distances,
+                    nearbyEnabled = nearbyEnabled,
+                    locationMessage = locationMessage,
+                    darkMode = darkMode,
+                    onToggleDarkMode = onToggleDarkMode,
+                    onToggleNearby = {
+                        if (nearbyEnabled) {
+                            nearbyEnabled = false
+                            locationMessage = ""
+                        } else {
+                            val allowed = ContextCompat.checkSelfPermission(
+                                context, Manifest.permission.ACCESS_FINE_LOCATION
+                            ) == PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                                context, Manifest.permission.ACCESS_COARSE_LOCATION
+                            ) == PackageManager.PERMISSION_GRANTED
+                            if (allowed) updateLocation()
+                            else locationPermissionLauncher.launch(
+                                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+                            )
+                        }
+                    },
+                    saved = saved,
+                    onSave = { id ->
+                        if (saved.contains(id)) saved.remove(id)
+                        else saved.add(id)
+                    },
+                    onOpen = {
+                        selected = it
+                        page = "detail"
+                    }
+                )
+
+                "saved" -> {
+                    val favorites = sampleRestaurants.filter { saved.contains(it.id) }
+                    RestaurantListScreen(
+                        title = "Mis restaurantes",
+                        subtitle = "Tus lugares favoritos, siempre a mano.",
+                        restaurants = favorites,
+                        saved = saved,
+                        onSave = { id ->
+                            if (saved.contains(id)) saved.remove(id)
+                            else saved.add(id)
+                        },
+                        onOpen = {
+                            selected = it
+                            page = "detail"
+                        }
+                    )
+                }
+
+                "detail" -> selected?.let { restaurant ->
+                    DetailScreen(
+                        restaurant = restaurant,
+                        isSaved = saved.contains(restaurant.id),
+                        onSave = {
+                            if (saved.contains(restaurant.id)) saved.remove(restaurant.id)
+                            else saved.add(restaurant.id)
+                        },
+                        onBack = { page = "home" }
+                    )
+                }
+            }
+
+            if (showCaptcha && turnstileSiteKey != null) {
+                TurnstileDialog(
+                    siteKey = turnstileSiteKey!!,
+                    onClose = {
+                        showCaptcha = false
+                        pendingGoogleCredential = null
+                    },
+                    onToken = { captchaToken ->
+                        val googleCredential = pendingGoogleCredential
+                        showCaptcha = false
+                        pendingGoogleCredential = null
+                        if (googleCredential != null) {
+                            coroutineScope.launch {
+                                isSigningIn = true
+                                try {
+                                    val response = iniciarSesionGoogle(
+                                        googleCredential,
+                                        captchaToken,
+                                    )
+                                    val accessToken = response.optString("access_token")
+                                    if (accessToken.isBlank()) {
+                                        throw IllegalStateException(
+                                            "El backend no devolvió el token de sesión."
+                                        )
+                                    }
+                                    context.getSharedPreferences(
+                                        "foodly_auth",
+                                        android.content.Context.MODE_PRIVATE,
+                                    ).edit().putString("access_token", accessToken).apply()
+                                    message = ""
+                                    page = "home"
+                                } catch (error: Exception) {
+                                    message = error.message
+                                        ?: "No se pudo completar el inicio de sesión."
+                                } finally {
+                                    isSigningIn = false
+                                }
+                            }
+                        }
+                    },
+                )
+            }
+            }
+        }
+    }
 
 @Composable
-fun PantallaInicioPro(
-    onComenzar: () -> Unit
+fun LoginScreen(
+    onContinue: () -> Unit,
+    message: String,
+    onExplore: () -> Unit,
+    isLoading: Boolean,
 ) {
-
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Blanco)
-            .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .background(appSurface())
+            .padding(horizontal = 28.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-
-        Spacer(
-            modifier = Modifier.height(45.dp)
-        )
-
         Image(
-            painter = painterResource(
-                id = R.drawable.foodly_logo
-            ),
-            contentDescription = "Foodly",
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(250.dp),
-            contentScale = ContentScale.Fit
+            painter = painterResource(R.drawable.foodly_logo),
+            contentDescription = "Logo de Foodly",
+            modifier = Modifier.size(132.dp).clip(RoundedCornerShape(28.dp)),
+            contentScale = ContentScale.Crop,
         )
 
-        Spacer(
-            modifier = Modifier.height(10.dp)
-        )
-
+        Spacer(Modifier.height(24.dp))
+        Text("foodly", fontSize = 38.sp, fontWeight = FontWeight.ExtraBold, color = appInk())
         Text(
-            text = "Tu próxima experiencia gastronómica comienza aquí.",
-            color = Negro,
-            fontSize = 25.sp,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-            lineHeight = 32.sp
+            "Tu próxima experiencia gastronómica empieza aquí.",
+            fontSize = 16.sp,
+            color = appMuted()
         )
 
-        Spacer(
-            modifier = Modifier.height(14.dp)
-        )
-
-        Text(
-            text = "Descubre restaurantes, sabores y lugares que valen la pena conocer.",
-            color = GrisTexto,
-            fontSize = 15.sp,
-            textAlign = TextAlign.Center,
-            lineHeight = 22.sp
-        )
-
-        Spacer(
-            modifier = Modifier.height(35.dp)
-        )
+        Spacer(Modifier.height(36.dp))
 
         Button(
-            onClick = onComenzar,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(58.dp),
-            shape = RoundedCornerShape(18.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Naranja,
-                contentColor = Blanco
-            )
+            onClick = onContinue,
+            enabled = !isLoading,
+            modifier = Modifier.fillMaxWidth().height(54.dp),
+            shape = RoundedCornerShape(14.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = appInk())
         ) {
-
             Text(
-                text = "Comenzar",
-                fontSize = 17.sp,
-                fontWeight = FontWeight.Bold
+                if (isLoading) "Conectando con Google..." else "G  Continuar con Google",
+                fontWeight = FontWeight.SemiBold,
             )
         }
 
-        Spacer(
-            modifier = Modifier.height(18.dp)
-        )
+        if (message.isNotBlank()) {
+            Spacer(Modifier.height(12.dp))
+            Text(message, color = Orange, fontSize = 12.sp)
+        }
 
+        Spacer(Modifier.height(20.dp))
+        TextButton(onClick = onExplore) {
+            Text("Explorar sin iniciar sesión", color = Orange)
+        }
+
+        Spacer(Modifier.height(28.dp))
         Text(
-            text = "Explora sabores cerca de ti",
-            color = GrisTexto,
+            "Descubre restaurantes locales, conoce sus platos y elige dónde ir.",
+            color = appMuted(),
             fontSize = 13.sp
         )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PantallaLoginPro(
-    onIngresar: () -> Unit
+fun HomeScreen(
+    query: String,
+    onQuery: (String) -> Unit,
+    zone: String,
+    onZone: (String) -> Unit,
+    category: String,
+    onCategory: (String) -> Unit,
+    zones: List<String>,
+    categories: List<String>,
+    restaurants: List<Restaurant>,
+    distances: Map<Int, Double>,
+    nearbyEnabled: Boolean,
+    locationMessage: String,
+    darkMode: Boolean,
+    onToggleDarkMode: () -> Unit,
+    onToggleNearby: () -> Unit,
+    saved: List<Int>,
+    onSave: (Int) -> Unit,
+    onOpen: (Restaurant) -> Unit
 ) {
-
-    var nombre by remember {
-        mutableStateOf("")
-    }
-
-    var pais by remember {
-        mutableStateOf("")
-    }
-
-    var edad by remember {
-        mutableStateOf("")
-    }
-
-    var error by remember {
-        mutableStateOf(false)
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(GrisFondo)
-            .verticalScroll(rememberScrollState())
-            .padding(24.dp)
-    ) {
-
-        Spacer(
-            modifier = Modifier.height(25.dp)
-        )
-
-        Text(
-            text = "Bienvenido a Foodly",
-            color = Negro,
-            fontSize = 30.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(
-            modifier = Modifier.height(8.dp)
-        )
-
-        Text(
-            text = "Cuéntanos un poco sobre ti para personalizar tu experiencia.",
-            color = GrisTexto,
-            fontSize = 15.sp,
-            lineHeight = 22.sp
-        )
-
-        Spacer(
-            modifier = Modifier.height(28.dp)
-        )
-
-        CampoPro(
-            valor = nombre,
-            onValor = {
-                nombre = it
-                error = false
-            },
-            etiqueta = "Nombre completo"
-        )
-
-        Spacer(
-            modifier = Modifier.height(14.dp)
-        )
-
-        CampoPro(
-            valor = pais,
-            onValor = {
-                pais = it
-                error = false
-            },
-            etiqueta = "País"
-        )
-
-        Spacer(
-            modifier = Modifier.height(14.dp)
-        )
-
-        CampoPro(
-            valor = edad,
-            onValor = {
-                edad = it
-                error = false
-            },
-            etiqueta = "Edad"
-        )
-
-        Spacer(
-            modifier = Modifier.height(22.dp)
-        )
-
-        if (error) {
-
-            Text(
-                text = "Completa todos los campos para continuar.",
-                color = Color(0xFFD32F2F),
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Medium
-            )
-
-            Spacer(
-                modifier = Modifier.height(12.dp)
-            )
-        }
-
-        Button(
-            onClick = {
-
-                if (
-                    nombre.isNotBlank() &&
-                    pais.isNotBlank() &&
-                    edad.isNotBlank()
-                ) {
-                    onIngresar()
-                } else {
-                    error = true
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Naranja,
-                contentColor = Blanco
-            )
-        ) {
-
-            Text(
-                text = "Entrar a Foodly",
-                fontSize = 17.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
-}
-
-@Composable
-fun CampoPro(
-    valor: String,
-    onValor: (String) -> Unit,
-    etiqueta: String
-) {
-
-    OutlinedTextField(
-        value = valor,
-        onValueChange = onValor,
-        label = {
-            Text(etiqueta)
-        },
-        modifier = Modifier.fillMaxWidth(),
-        singleLine = true,
-        shape = RoundedCornerShape(14.dp)
-    )
-}
-
-@Composable
-fun PantallaHomePro(
-    restaurantes: List<Restaurante>,
-    favoritos: List<String>,
-    onRestaurante: (Restaurante) -> Unit,
-    onFavorito: (Restaurante) -> Unit,
-    onExplorar: () -> Unit
-) {
-
-    var busqueda by remember {
-        mutableStateOf("")
-    }
-
-    var categoria by remember {
-        mutableStateOf("Todos")
-    }
-
-    val categorias = listOf(
-        "Todos",
-        "Comida típica",
-        "Parrilla",
-        "Hamburguesas",
-        "Mexicana"
-    )
-
-    val filtrados = restaurantes.filter {
-
-        val coincideCategoria =
-            categoria == "Todos" ||
-                    it.categoria == categoria
-
-        val coincideBusqueda =
-            it.nombre.contains(
-                busqueda,
-                ignoreCase = true
-            ) ||
-                    it.categoria.contains(
-                        busqueda,
-                        ignoreCase = true
-                    )
-
-        coincideCategoria && coincideBusqueda
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(GrisFondo)
-            .verticalScroll(rememberScrollState())
-    ) {
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Negro)
-                .padding(
-                    start = 20.dp,
-                    end = 20.dp,
-                    top = 25.dp,
-                    bottom = 24.dp
-                )
-        ) {
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                Column {
-
-                    Text(
-                        text = "Hola 👋",
-                        color = Color(0xFFBDBDBD),
-                        fontSize = 14.sp
-                    )
-
-                    Text(
-                        text = "¿Qué quieres comer?",
-                        color = Blanco,
-                        fontSize = 26.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                Box(
-                    modifier = Modifier
-                        .size(46.dp)
-                        .clip(CircleShape)
-                        .background(Naranja),
-                    contentAlignment = Alignment.Center
-                ) {
-
-                    Text(
-                        text = "F",
-                        color = Blanco,
-                        fontSize = 21.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-
-            Spacer(
-                modifier = Modifier.height(20.dp)
-            )
-
-            BuscadorPro(
-                valor = busqueda,
-                onValor = {
-                    busqueda = it
-                }
-            )
-        }
-
-        Spacer(
-            modifier = Modifier.height(20.dp)
-        )
-
-        Text(
-            text = "Explora por categoría",
-            color = Negro,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 20.dp)
-        )
-
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
-
-        Row(
-            modifier = Modifier
-                .horizontalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp)
-        ) {
-
-            categorias.forEach { item ->
-
-                CategoriaChip(
-                    texto = item,
-                    seleccionada = categoria == item,
-                    onClick = {
-                        categoria = item
-                    }
-                )
-
-                Spacer(
-                    modifier = Modifier.width(8.dp)
-                )
-            }
-        }
-
-        Spacer(
-            modifier = Modifier.height(25.dp)
-        )
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            Text(
-                text = "Destacados",
-                color = Negro,
-                fontSize = 21.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            TextButton(
-                onClick = onExplorar
-            ) {
-
-                Text(
-                    text = "Ver todos",
-                    color = Naranja,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-
-        Spacer(
-            modifier = Modifier.height(4.dp)
-        )
-
-        Row(
-            modifier = Modifier
-                .horizontalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp)
-        ) {
-
-            restaurantes.take(4).forEach { restaurante ->
-
-                RestauranteDestacado(
-                    restaurante = restaurante,
-                    favorito = favoritos.contains(
-                        restaurante.nombre
-                    ),
-                    onClick = {
-                        onRestaurante(restaurante)
-                    },
-                    onFavorito = {
-                        onFavorito(restaurante)
-                    }
-                )
-
-                Spacer(
-                    modifier = Modifier.width(14.dp)
-                )
-            }
-        }
-
-        Spacer(
-            modifier = Modifier.height(28.dp)
-        )
-
-        Text(
-            text = "Restaurantes cerca de ti",
-            color = Negro,
-            fontSize = 21.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 20.dp)
-        )
-
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
-
-        if (filtrados.isEmpty()) {
-
-            EstadoVacio()
-
-        } else {
-
-            filtrados.forEach { restaurante ->
-
-                RestauranteListaPro(
-                    restaurante = restaurante,
-                    favorito = favoritos.contains(
-                        restaurante.nombre
-                    ),
-                    onClick = {
-                        onRestaurante(restaurante)
-                    },
-                    onFavorito = {
-                        onFavorito(restaurante)
-                    }
-                )
-            }
-        }
-
-        Spacer(
-            modifier = Modifier.height(25.dp)
-        )
-    }
-}
-
-@Composable
-fun BuscadorPro(
-    valor: String,
-    onValor: (String) -> Unit
-) {
-
-    OutlinedTextField(
-        value = valor,
-        onValueChange = onValor,
-        modifier = Modifier.fillMaxWidth(),
-        singleLine = true,
-        placeholder = {
-            Text(
-                text = "Buscar restaurantes, comida..."
-            )
-        },
-        leadingIcon = {
-            Text(
-                text = "⌕",
-                fontSize = 25.sp,
-                color = GrisTexto
-            )
-        },
-        shape = RoundedCornerShape(16.dp)
-    )
-}
-
-@Composable
-fun CategoriaChip(
-    texto: String,
-    seleccionada: Boolean,
-    onClick: () -> Unit
-) {
-
-    Surface(
-        modifier = Modifier
-            .clip(RoundedCornerShape(30.dp))
-            .clickable {
-                onClick()
-            },
-        color = if (seleccionada) {
-            Naranja
-        } else {
-            Blanco
-        },
-        shape = RoundedCornerShape(30.dp)
-    ) {
-
-        Text(
-            text = texto,
-            color = if (seleccionada) {
-                Blanco
-            } else {
-                Negro
-            },
-            fontSize = 13.sp,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(
-                horizontal = 17.dp,
-                vertical = 11.dp
-            )
-        )
-    }
-}
-
-@Composable
-fun RestauranteDestacado(
-    restaurante: Restaurante,
-    favorito: Boolean,
-    onFavorito: () -> Unit,
-    onClick: () -> Unit
-) {
-
-    Card(
-        modifier = Modifier
-            .width(250.dp)
-            .clickable {
-                onClick()
-            },
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Blanco
+    LazyColumn(
+        contentPadding = PaddingValues(
+            start = 20.dp,
+            end = 20.dp,
+            top = 22.dp,
+            bottom = 20.dp
         ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 3.dp
-        )
+        verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
+        item {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            painter = painterResource(R.drawable.foodly_logo),
+                            contentDescription = "Logo de Foodly",
+                            modifier = Modifier.size(46.dp).clip(RoundedCornerShape(12.dp)),
+                            contentScale = ContentScale.Crop,
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text("Foodly", fontSize = 25.sp, fontWeight = FontWeight.ExtraBold, color = Orange)
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Text("¿Qué se te antoja hoy?", fontSize = 23.sp, fontWeight = FontWeight.Bold, color = appInk())
+                    Text("Descubre sabores cerca de ti.", color = appMuted())
+                }
+                IconButton(onClick = onToggleDarkMode) {
+                    Text(if (darkMode) "☀️" else "🌙", fontSize = 24.sp)
+                }
+            }
+        }
 
-        Column {
+        item {
+            OutlinedTextField(
+                value = query,
+                onValueChange = onQuery,
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                shape = RoundedCornerShape(16.dp),
+                placeholder = { Text("Restaurante, plato o comida...") },
+                leadingIcon = { Text("⌕", fontSize = 26.sp) }
+            )
+        }
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(145.dp)
-                    .background(
-                        color = when (restaurante.categoria) {
-                            "Parrilla" -> Color(0xFF3A2922)
-                            "Hamburguesas" -> Color(0xFF5A351E)
-                            "Mexicana" -> Color(0xFF7A3525)
-                            "Comida típica" -> Color(0xFF4A3526)
-                            else -> Negro
-                        }
-                    ),
-                contentAlignment = Alignment.Center
+        item {
+            OutlinedButton(
+                onClick = onToggleNearby,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = Orange),
             ) {
+                Text(if (nearbyEnabled) "📍 Desactivar ordenar por cercanía" else "📍 Mostrar restaurantes más cercanos")
+            }
+            if (locationMessage.isNotBlank()) {
+                Text(locationMessage, color = appMuted(), fontSize = 12.sp)
+            }
+        }
 
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-
-                    Text(
-                        text = when (restaurante.categoria) {
-                            "Parrilla" -> "🔥"
-                            "Hamburguesas" -> "🍔"
-                            "Mexicana" -> "🌮"
-                            "Comida típica" -> "🍽️"
-                            else -> "🍴"
-                        },
-                        fontSize = 48.sp
-                    )
-
-                    Spacer(
-                        modifier = Modifier.height(4.dp)
-                    )
-
-                    Text(
-                        text = "FOODLY",
-                        color = Blanco,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 2.sp
-                    )
-                }
-
-                Surface(
-                    modifier = Modifier
-                        .padding(10.dp)
-                        .align(Alignment.TopEnd)
-                        .clickable {
-                            onFavorito()
-                        },
-                    shape = CircleShape,
-                    color = Blanco
-                ) {
-
-                    Text(
-                        text = if (favorito) "♥" else "♡",
-                        color = if (favorito) {
-                            Naranja
-                        } else {
-                            Negro
-                        },
-                        fontSize = 22.sp,
-                        modifier = Modifier.padding(7.dp)
-                    )
-                }
-
-                Surface(
-                    modifier = Modifier
-                        .padding(10.dp)
-                        .align(Alignment.BottomStart),
-                    shape = RoundedCornerShape(10.dp),
-                    color = Naranja
-                ) {
-
-                    Text(
-                        text = restaurante.categoria,
-                        color = Blanco,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(
-                            horizontal = 9.dp,
-                            vertical = 5.dp
+        item {
+            Text("Explorar por zona", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(8.dp))
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(zones) { item ->
+                    FilterChip(
+                        selected = zone == item,
+                        onClick = { onZone(item) },
+                        label = { Text(item) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = Orange,
+                            selectedLabelColor = Color.White
                         )
                     )
                 }
             }
+        }
 
-            Column(
-                modifier = Modifier.padding(14.dp)
-            ) {
-
-                Text(
-                    text = restaurante.nombre,
-                    color = Negro,
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Spacer(
-                    modifier = Modifier.height(4.dp)
-                )
-
-                Text(
-                    text = restaurante.descripcion,
-                    color = GrisTexto,
-                    fontSize = 12.sp,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Spacer(
-                    modifier = Modifier.height(8.dp)
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Text(
-                        text = "★ ${restaurante.calificacion}",
-                        color = Naranja,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp
-                    )
-
-                    Text(
-                        text = restaurante.distancia,
-                        color = GrisTexto,
-                        fontSize = 12.sp
+        item {
+            Text("Categorías", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(8.dp))
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(categories) { item ->
+                    FilterChip(
+                        selected = category == item,
+                        onClick = { onCategory(item) },
+                        label = { Text(item) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = Orange,
+                            selectedLabelColor = Color.White
+                        )
                     )
                 }
             }
+        }
+
+        item {
+            Text("Lugares para descubrir", fontSize = 21.sp, fontWeight = FontWeight.Bold)
+            Text("${restaurants.size} resultados", fontSize = 13.sp, color = appMuted())
+        }
+
+        if (restaurants.isEmpty()) {
+            item {
+                Text("No encontramos resultados. Prueba con otra búsqueda o ubicación.")
+            }
+        }
+
+        items(restaurants, key = { it.id }) { restaurant ->
+            RestaurantCard(
+                restaurant = restaurant,
+                isSaved = saved.contains(restaurant.id),
+                onSave = { onSave(restaurant.id) },
+                onClick = { onOpen(restaurant) },
+                distanceKm = distances[restaurant.id],
+            )
         }
     }
 }
 
 @Composable
-fun RestauranteListaPro(
-    restaurante: Restaurante,
-    favorito: Boolean,
+fun RestaurantCard(
+    restaurant: Restaurant,
+    isSaved: Boolean,
+    onSave: () -> Unit,
     onClick: () -> Unit,
-    onFavorito: () -> Unit
+    distanceKm: Double? = null,
 ) {
-
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                horizontal = 20.dp,
-                vertical = 6.dp
-            )
-            .clickable {
-                onClick()
-            },
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Blanco
-        )
+        modifier = Modifier.fillMaxWidth().clickable { onClick() },
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = appSurface()),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-
-        Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            Image(
-                painter = painterResource(
-                    id = restaurante.imagen
-                ),
-                contentDescription = restaurante.nombre,
-                modifier = Modifier
-                    .size(92.dp)
-                    .clip(RoundedCornerShape(15.dp)),
-                contentScale = ContentScale.Crop
-            )
-
-            Spacer(
-                modifier = Modifier.width(13.dp)
-            )
-
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-
-                Text(
-                    text = restaurante.nombre,
-                    color = Negro,
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+        Column {
+            Box {
+                AsyncImage(
+                    model = restaurant.profileImage,
+                    contentDescription = "Foto de ${restaurant.name}",
+                    modifier = Modifier.fillMaxWidth().height(175.dp),
+                    contentScale = ContentScale.Crop
                 )
-
-                Spacer(
-                    modifier = Modifier.height(4.dp)
-                )
-
-                Text(
-                    text = restaurante.categoria,
-                    color = GrisTexto,
-                    fontSize = 13.sp
-                )
-
-                Spacer(
-                    modifier = Modifier.height(7.dp)
-                )
-
-                Row {
-
-                    Text(
-                        text = "★ ${restaurante.calificacion}",
-                        color = Naranja,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Spacer(
-                        modifier = Modifier.width(10.dp)
-                    )
-
-                    Text(
-                        text = restaurante.distancia,
-                        color = GrisTexto,
-                        fontSize = 12.sp
-                    )
-                }
-            }
-
-            Text(
-                text = if (favorito) "♥" else "♡",
-                color = if (favorito) Naranja else GrisTexto,
-                fontSize = 24.sp,
-                modifier = Modifier
-                    .clickable {
-                        onFavorito()
-                    }
-                    .padding(6.dp)
-            )
-        }
-    }
-}
-
-@Composable
-fun PantallaExplorarPro(
-    restaurantes: List<Restaurante>,
-    favoritos: List<String>,
-    onRestaurante: (Restaurante) -> Unit,
-    onFavorito: (Restaurante) -> Unit
-) {
-
-    var busqueda by remember {
-        mutableStateOf("")
-    }
-
-    var categoria by remember {
-        mutableStateOf("Todos")
-    }
-
-    val categorias = listOf(
-        "Todos",
-        "Comida típica",
-        "Parrilla",
-        "Hamburguesas",
-        "Mexicana"
-    )
-
-    val resultados = restaurantes.filter {
-
-        val categoriaOk =
-            categoria == "Todos" ||
-                    it.categoria == categoria
-
-        val textoOk =
-            it.nombre.contains(
-                busqueda,
-                ignoreCase = true
-            ) ||
-                    it.categoria.contains(
-                        busqueda,
-                        ignoreCase = true
-                    )
-
-        categoriaOk && textoOk
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(GrisFondo)
-            .verticalScroll(rememberScrollState())
-            .padding(top = 25.dp)
-    ) {
-
-        Text(
-            text = "Explorar",
-            color = Negro,
-            fontSize = 30.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 20.dp)
-        )
-
-        Spacer(
-            modifier = Modifier.height(5.dp)
-        )
-
-        Text(
-            text = "Encuentra un lugar que te sorprenda.",
-            color = GrisTexto,
-            fontSize = 15.sp,
-            modifier = Modifier.padding(horizontal = 20.dp)
-        )
-
-        Spacer(
-            modifier = Modifier.height(20.dp)
-        )
-
-        BuscadorPro(
-            valor = busqueda,
-            onValor = {
-                busqueda = it
-            }
-        )
-
-        Spacer(
-            modifier = Modifier.height(15.dp)
-        )
-
-        Row(
-            modifier = Modifier
-                .horizontalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp)
-        ) {
-
-            categorias.forEach {
-
-                CategoriaChip(
-                    texto = it,
-                    seleccionada = categoria == it,
-                    onClick = {
-                        categoria = it
-                    }
-                )
-
-                Spacer(
-                    modifier = Modifier.width(8.dp)
-                )
-            }
-        }
-
-        Spacer(
-            modifier = Modifier.height(20.dp)
-        )
-
-        Text(
-            text = "${resultados.size} lugares encontrados",
-            color = GrisTexto,
-            fontSize = 13.sp,
-            modifier = Modifier.padding(horizontal = 20.dp)
-        )
-
-        Spacer(
-            modifier = Modifier.height(8.dp)
-        )
-
-        resultados.forEach { restaurante ->
-
-            RestauranteListaPro(
-                restaurante = restaurante,
-                favorito = favoritos.contains(
-                    restaurante.nombre
-                ),
-                onClick = {
-                    onRestaurante(restaurante)
-                },
-                onFavorito = {
-                    onFavorito(restaurante)
-                }
-            )
-        }
-
-        Spacer(
-            modifier = Modifier.height(25.dp)
-        )
-    }
-}
-
-@Composable
-fun PantallaFavoritosPro(
-    restaurantes: List<Restaurante>,
-    favoritos: List<String>,
-    onRestaurante: (Restaurante) -> Unit
-) {
-
-    val guardados = restaurantes.filter {
-        favoritos.contains(it.nombre)
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(GrisFondo)
-            .verticalScroll(rememberScrollState())
-            .padding(top = 25.dp)
-    ) {
-
-        Text(
-            text = "Mis favoritos",
-            color = Negro,
-            fontSize = 30.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 20.dp)
-        )
-
-        Spacer(
-            modifier = Modifier.height(5.dp)
-        )
-
-        Text(
-            text = "Tus lugares guardados para volver cuando quieras.",
-            color = GrisTexto,
-            fontSize = 15.sp,
-            modifier = Modifier.padding(horizontal = 20.dp)
-        )
-
-        Spacer(
-            modifier = Modifier.height(20.dp)
-        )
-
-        if (guardados.isEmpty()) {
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(40.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-
-                Text(
-                    text = "♡",
-                    color = Naranja,
-                    fontSize = 55.sp
-                )
-
-                Spacer(
-                    modifier = Modifier.height(12.dp)
-                )
-
-                Text(
-                    text = "Todavía no tienes favoritos",
-                    color = Negro,
-                    fontSize = 19.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(
-                    modifier = Modifier.height(8.dp)
-                )
-
-                Text(
-                    text = "Guarda los restaurantes que más te gusten y aparecerán aquí.",
-                    color = GrisTexto,
-                    fontSize = 14.sp,
-                    textAlign = TextAlign.Center
-                )
-            }
-
-        } else {
-
-            guardados.forEach { restaurante ->
-
-                RestauranteListaPro(
-                    restaurante = restaurante,
-                    favorito = true,
-                    onClick = {
-                        onRestaurante(restaurante)
-                    },
-                    onFavorito = {}
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun PantallaPerfilPro() {
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(GrisFondo)
-            .verticalScroll(rememberScrollState())
-            .padding(20.dp)
-    ) {
-
-        Text(
-            text = "Mi perfil",
-            color = Negro,
-            fontSize = 30.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(
-            modifier = Modifier.height(22.dp)
-        )
-
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Negro
-            )
-        ) {
-
-            Row(
-                modifier = Modifier.padding(20.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                Box(
-                    modifier = Modifier
-                        .size(62.dp)
-                        .clip(CircleShape)
-                        .background(Naranja),
-                    contentAlignment = Alignment.Center
+                Surface(
+                    modifier = Modifier.align(Alignment.TopStart).padding(12.dp),
+                    color = appSurface().copy(alpha = 0.95f),
+                    shape = RoundedCornerShape(8.dp)
                 ) {
-
                     Text(
-                        text = "E",
-                        color = Blanco,
-                        fontSize = 26.sp,
-                        fontWeight = FontWeight.Bold
+                        restaurant.location,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                        color = appInk(),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
-
-                Spacer(
-                    modifier = Modifier.width(15.dp)
-                )
-
-                Column {
-
-                    Text(
-                        text = "Usuario Foodly",
-                        color = Blanco,
-                        fontSize = 19.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Spacer(
-                        modifier = Modifier.height(3.dp)
-                    )
-
-                    Text(
-                        text = "Explorador gastronómico",
-                        color = Color(0xFFBDBDBD),
-                        fontSize = 13.sp
-                    )
-                }
-            }
-        }
-
-        Spacer(
-            modifier = Modifier.height(25.dp)
-        )
-
-        PerfilOpcionPro(
-            titulo = "Mis favoritos",
-            descripcion = "Restaurantes que has guardado"
-        )
-
-        PerfilOpcionPro(
-            titulo = "Mis preferencias",
-            descripcion = "Personaliza lo que quieres descubrir"
-        )
-
-        PerfilOpcionPro(
-            titulo = "Sobre Foodly",
-            descripcion = "Conoce más sobre nuestra plataforma"
-        )
-
-        PerfilOpcionPro(
-            titulo = "Ayuda y soporte",
-            descripcion = "Estamos aquí para ayudarte"
-        )
-    }
-}
-
-@Composable
-fun PerfilOpcionPro(
-    titulo: String,
-    descripcion: String
-) {
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Blanco
-        )
-    ) {
-
-        Row(
-            modifier = Modifier.padding(17.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            Box(
-                modifier = Modifier
-                    .size(42.dp)
-                    .clip(CircleShape)
-                    .background(NaranjaClaro),
-                contentAlignment = Alignment.Center
-            ) {
-
-                Text(
-                    text = "•",
-                    color = Naranja,
-                    fontSize = 25.sp
-                )
-            }
-
-            Spacer(
-                modifier = Modifier.width(13.dp)
-            )
-
-            Column {
-
-                Text(
-                    text = titulo,
-                    color = Negro,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Spacer(
-                    modifier = Modifier.height(3.dp)
-                )
-
-                Text(
-                    text = descripcion,
-                    color = GrisTexto,
-                    fontSize = 12.sp
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun BarraNavegacionPro(
-    paginaActual: String,
-    onPagina: (String) -> Unit
-) {
-
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = Blanco,
-        shadowElevation = 8.dp
-    ) {
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = 10.dp,
-                    vertical = 8.dp
-                ),
-            horizontalArrangement = Arrangement.SpaceAround
-        ) {
-
-            NavegacionItemPro(
-                icono = "⌂",
-                titulo = "Inicio",
-                activo = paginaActual == "inicio",
-                onClick = {
-                    onPagina("inicio")
-                }
-            )
-
-            NavegacionItemPro(
-                icono = "⌕",
-                titulo = "Explorar",
-                activo = paginaActual == "explorar",
-                onClick = {
-                    onPagina("explorar")
-                }
-            )
-
-            NavegacionItemPro(
-                icono = "♡",
-                titulo = "Favoritos",
-                activo = paginaActual == "favoritos",
-                onClick = {
-                    onPagina("favoritos")
-                }
-            )
-
-            NavegacionItemPro(
-                icono = "●",
-                titulo = "Perfil",
-                activo = paginaActual == "perfil",
-                onClick = {
-                    onPagina("perfil")
-                }
-            )
-        }
-    }
-}
-
-@Composable
-fun NavegacionItemPro(
-    icono: String,
-    titulo: String,
-    activo: Boolean,
-    onClick: () -> Unit
-) {
-
-    Column(
-        modifier = Modifier
-            .clip(RoundedCornerShape(14.dp))
-            .clickable {
-                onClick()
-            }
-            .padding(
-                horizontal = 15.dp,
-                vertical = 5.dp
-            ),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-
-        Text(
-            text = icono,
-            color = if (activo) Naranja else GrisTexto,
-            fontSize = 22.sp,
-            fontWeight = if (activo) {
-                FontWeight.Bold
-            } else {
-                FontWeight.Normal
-            }
-        )
-
-        Text(
-            text = titulo,
-            color = if (activo) Naranja else GrisTexto,
-            fontSize = 11.sp,
-            fontWeight = if (activo) {
-                FontWeight.Bold
-            } else {
-                FontWeight.Normal
-            }
-        )
-    }
-}
-
-@Composable
-fun PantallaRestaurantePro(
-    restaurante: Restaurante,
-    favorito: Boolean,
-    onVolver: () -> Unit,
-    onFavorito: () -> Unit
-) {
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(GrisFondo)
-            .verticalScroll(rememberScrollState())
-    ) {
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(280.dp)
-        ) {
-
-            Image(
-                painter = painterResource(
-                    id = restaurante.imagen
-                ),
-                contentDescription = restaurante.nombre,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )
-
-            Surface(
-                modifier = Modifier
-                    .padding(18.dp)
-                    .clickable {
-                        onVolver()
-                    },
-                shape = CircleShape,
-                color = Blanco
-            ) {
-
-                Text(
-                    text = "‹",
-                    color = Negro,
-                    fontSize = 30.sp,
-                    modifier = Modifier.padding(
-                        horizontal = 14.dp,
-                        vertical = 5.dp
-                    )
-                )
-            }
-
-            Surface(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(18.dp)
-                    .clickable {
-                        onFavorito()
-                    },
-                shape = CircleShape,
-                color = Blanco
-            ) {
-
-                Text(
-                    text = if (favorito) "♥" else "♡",
-                    color = if (favorito) Naranja else Negro,
-                    fontSize = 25.sp,
-                    modifier = Modifier.padding(9.dp)
-                )
-            }
-        }
-
-        Column(
-            modifier = Modifier.padding(20.dp)
-        ) {
-
-            Text(
-                text = restaurante.nombre,
-                color = Negro,
-                fontSize = 29.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(
-                modifier = Modifier.height(7.dp)
-            )
-
-            Text(
-                text = restaurante.categoria,
-                color = Naranja,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(
-                modifier = Modifier.height(12.dp)
-            )
-
-            Text(
-                text = restaurante.descripcion,
-                color = GrisTexto,
-                fontSize = 15.sp,
-                lineHeight = 22.sp
-            )
-
-            Spacer(
-                modifier = Modifier.height(18.dp)
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-
-                DatoRestaurante(
-                    titulo = "Calificación",
-                    valor = "★ ${restaurante.calificacion}"
-                )
-
-                DatoRestaurante(
-                    titulo = "Distancia",
-                    valor = restaurante.distancia
-                )
-
-                DatoRestaurante(
-                    titulo = "Horario",
-                    valor = restaurante.horario
-                )
-            }
-
-            Spacer(
-                modifier = Modifier.height(25.dp)
-            )
-
-            Text(
-                text = "Productos destacados",
-                color = Negro,
-                fontSize = 21.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(
-                modifier = Modifier.height(12.dp)
-            )
-
-            restaurante.productos.forEach { producto ->
-
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 5.dp),
-                    shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Blanco
-                    )
+                TextButton(
+                    onClick = onSave,
+                    modifier = Modifier.align(Alignment.TopEnd)
+                        .padding(6.dp)
+                        .background(appSurface(), CircleShape)
                 ) {
+                    Text(if (isSaved) "♥" else "♡", color = Orange, fontSize = 23.sp)
+                }
+            }
 
-                    Row(
-                        modifier = Modifier.padding(15.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-
-                        Box(
-                            modifier = Modifier
-                                .size(42.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(NaranjaClaro),
-                            contentAlignment = Alignment.Center
-                        ) {
-
+            Column(Modifier.padding(15.dp)) {
+                Text(restaurant.name, fontSize = 19.sp, fontWeight = FontWeight.Bold)
+                Text(restaurant.category, color = Orange, fontSize = 13.sp)
+                Spacer(Modifier.height(4.dp))
+                Text(restaurant.description, color = appMuted(), fontSize = 13.sp, maxLines = 2)
+                Spacer(Modifier.height(8.dp))
+                Text("📍 ${restaurant.location}", color = appInk(), fontSize = 12.sp)
+                if (distanceKm != null) {
+                    Text("A ${String.format(java.util.Locale.US, "%.1f", distanceKm)} km de ti", color = Orange, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                }
+                Spacer(Modifier.height(10.dp))
+                Text("Productos destacados", fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.height(8.dp))
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(restaurant.products.take(4)) { product ->
+                        Column(Modifier.width(112.dp)) {
+                            AsyncImage(
+                                model = product.image,
+                                contentDescription = product.name,
+                                modifier = Modifier.size(112.dp).clip(RoundedCornerShape(12.dp)),
+                                contentScale = ContentScale.Crop
+                            )
+                            Spacer(Modifier.height(5.dp))
                             Text(
-                                text = "•",
-                                color = Naranja,
-                                fontSize = 24.sp
+                                product.name,
+                                fontSize = 12.sp,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Text(
+                                "${formatPrice(product.price)} aprox.",
+                                color = Orange,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
                             )
                         }
-
-                        Spacer(
-                            modifier = Modifier.width(12.dp)
-                        )
-
-                        Text(
-                            text = producto,
-                            color = Negro,
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
                     }
                 }
-            }
-
-            Spacer(
-                modifier = Modifier.height(25.dp)
-            )
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Blanco
-                )
-            ) {
-
-                Column(
-                    modifier = Modifier.padding(18.dp)
+                Spacer(Modifier.height(8.dp))
+                TextButton(
+                    onClick = onClick,
+                    modifier = Modifier.align(Alignment.End)
                 ) {
-
-                    Text(
-                        text = "Información del lugar",
-                        color = Negro,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Spacer(
-                        modifier = Modifier.height(14.dp)
-                    )
-
-                    Text(
-                        text = "📍 ${restaurante.direccion}",
-                        color = GrisTexto,
-                        fontSize = 14.sp
-                    )
-
-                    Spacer(
-                        modifier = Modifier.height(9.dp)
-                    )
-
-                    Text(
-                        text = "◷ ${restaurante.horario}",
-                        color = GrisTexto,
-                        fontSize = 14.sp
-                    )
+                    Text("Ver restaurante", color = Orange, fontWeight = FontWeight.Bold)
                 }
             }
+        }
+    }
+}
 
-            Spacer(
-                modifier = Modifier.height(22.dp)
-            )
-
-            Button(
-                onClick = {},
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Verde,
-                    contentColor = Blanco
-                )
-            ) {
-
-                Text(
-                    text = "Contactar por WhatsApp",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            Spacer(
-                modifier = Modifier.height(10.dp)
-            )
-
-            OutlinedButton(
-                onClick = {},
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(54.dp),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-
-                Text(
-                    text = "Ver ubicación"
-                )
-            }
-
-            Spacer(
-                modifier = Modifier.height(25.dp)
+@Composable
+fun RestaurantListScreen(
+    title: String,
+    subtitle: String,
+    restaurants: List<Restaurant>,
+    saved: List<Int>,
+    onSave: (Int) -> Unit,
+    onOpen: (Restaurant) -> Unit
+) {
+    LazyColumn(
+        contentPadding = PaddingValues(20.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        item {
+            Text(title, fontSize = 28.sp, fontWeight = FontWeight.ExtraBold)
+            Text(subtitle, color = appMuted())
+        }
+        if (restaurants.isEmpty()) {
+            item { Text("Aún no tienes restaurantes guardados. Explora y guarda tus favoritos.") }
+        }
+        items(restaurants, key = { it.id }) { restaurant ->
+            RestaurantCard(
+                restaurant = restaurant,
+                isSaved = saved.contains(restaurant.id),
+                onSave = { onSave(restaurant.id) },
+                onClick = { onOpen(restaurant) }
             )
         }
     }
 }
 
 @Composable
-fun DatoRestaurante(
-    titulo: String,
-    valor: String
+fun DetailScreen(
+    restaurant: Restaurant,
+    isSaved: Boolean,
+    onSave: () -> Unit,
+    onBack: () -> Unit
 ) {
+    val context = LocalContext.current
 
-    Column(
-        modifier = Modifier.width(105.dp)
+    LazyColumn(
+        contentPadding = PaddingValues(bottom = 28.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        item {
+            Box {
+                AsyncImage(
+                    model = restaurant.profileImage,
+                    contentDescription = "Foto de ${restaurant.name}",
+                    modifier = Modifier.fillMaxWidth().height(260.dp),
+                    contentScale = ContentScale.Crop
+                )
+                TextButton(
+                    onClick = onBack,
+                    modifier = Modifier.padding(12.dp).background(appSurface(), CircleShape)
+                ) {
+                    Text("← Volver", color = appInk())
+                }
+            }
+        }
 
-        Text(
-            text = titulo,
-            color = GrisTexto,
-            fontSize = 11.sp
-        )
+        item {
+            Column(Modifier.padding(horizontal = 20.dp)) {
+                Text(restaurant.name, fontSize = 29.sp, fontWeight = FontWeight.ExtraBold)
+                Text(restaurant.category, color = Orange, fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.height(8.dp))
+                Text(restaurant.description, color = appMuted())
+                Spacer(Modifier.height(8.dp))
+                Text("📍 ${restaurant.address}", color = appInk())
+                Spacer(Modifier.height(16.dp))
 
-        Spacer(
-            modifier = Modifier.height(4.dp)
-        )
+                Button(
+                    onClick = onSave,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (isSaved) appInk() else Orange
+                    )
+                ) {
+                    Text(if (isSaved) "♥ Restaurante guardado" else "♡ Guardar restaurante")
+                }
 
-        Text(
-            text = valor,
-            color = Negro,
-            fontSize = 13.sp,
-            fontWeight = FontWeight.Bold,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
-        )
+                Spacer(Modifier.height(8.dp))
+
+                OutlinedButton(
+                    onClick = {
+                        val url = Uri.parse(
+                            "https://www.google.com/maps/search/?api=1&query=" +
+                                    Uri.encode(restaurant.address)
+                        )
+                        context.startActivity(Intent(Intent.ACTION_VIEW, url))
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp)
+                ) {
+                    Text("↗  Cómo llegar con Google Maps", color = appInk())
+                }
+
+                Spacer(Modifier.height(8.dp))
+
+                Button(
+                    onClick = {
+                        val url = Uri.parse(
+                            "https://wa.me/${restaurant.phone}?text=" +
+                                    Uri.encode("Hola, encontré ${restaurant.name} en Foodly y quisiera más información.")
+                        )
+                        context.startActivity(Intent(Intent.ACTION_VIEW, url))
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF168B55))
+                ) {
+                    Text("Contactar por WhatsApp")
+                }
+
+                Spacer(Modifier.height(12.dp))
+                Text("Nuestros productos", fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                Text("Conoce algunas de sus propuestas gastronómicas.", color = appMuted())
+            }
+        }
+
+        items(restaurant.products, key = { it.name }) { product ->
+            Column(Modifier.padding(horizontal = 20.dp)) {
+                AsyncImage(
+                    model = product.image,
+                    contentDescription = product.name,
+                    modifier = Modifier.fillMaxWidth().height(210.dp)
+                        .clip(RoundedCornerShape(18.dp)),
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(Modifier.height(7.dp))
+                Text(product.name, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+                Text("${formatPrice(product.price)} COP · precio de muestra", color = Orange, fontWeight = FontWeight.Bold)
+            }
+        }
     }
 }
 
-@Composable
-fun EstadoVacio() {
+private fun formatPrice(value: Int): String =
+    java.text.NumberFormat.getCurrencyInstance(java.util.Locale("es", "CO"))
+        .format(value)
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(40.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+private suspend fun getCurrentLocation(context: Context): Location {
+    val fineGranted = ContextCompat.checkSelfPermission(
+        context, Manifest.permission.ACCESS_FINE_LOCATION
+    ) == PackageManager.PERMISSION_GRANTED
+    val coarseGranted = ContextCompat.checkSelfPermission(
+        context, Manifest.permission.ACCESS_COARSE_LOCATION
+    ) == PackageManager.PERMISSION_GRANTED
+    if (!fineGranted && !coarseGranted) throw SecurityException("Se necesita permiso de ubicación.")
 
-        Text(
-            text = "⌕",
-            color = Naranja,
-            fontSize = 48.sp
-        )
-
-        Spacer(
-            modifier = Modifier.height(10.dp)
-        )
-
-        Text(
-            text = "No encontramos lugares",
-            color = Negro,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(
-            modifier = Modifier.height(6.dp)
-        )
-
-        Text(
-            text = "Prueba con otra búsqueda o categoría.",
-            color = GrisTexto,
-            fontSize = 13.sp,
-            textAlign = TextAlign.Center
-        )
+    val manager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    val providers = manager.getProviders(true).filter {
+        it == LocationManager.GPS_PROVIDER || it == LocationManager.NETWORK_PROVIDER
     }
+    if (providers.isEmpty()) throw IllegalStateException("Activa la ubicación del teléfono e inténtalo de nuevo.")
+
+    val lastKnown = providers.mapNotNull { provider ->
+        try { manager.getLastKnownLocation(provider) } catch (_: SecurityException) { null }
+    }.maxByOrNull { it.time }
+    if (lastKnown != null && System.currentTimeMillis() - lastKnown.time < 120_000) return lastKnown
+
+    return withTimeout(20_000) {
+        suspendCancellableCoroutine { continuation ->
+            val listener = object : LocationListener {
+                override fun onLocationChanged(location: Location) {
+                    manager.removeUpdates(this)
+                    if (continuation.isActive) continuation.resume(location)
+                }
+            }
+            try {
+                providers.forEach { provider ->
+                    manager.requestLocationUpdates(provider, 0L, 0f, listener, Looper.getMainLooper())
+                }
+            } catch (error: Exception) {
+                if (continuation.isActive) continuation.resumeWith(Result.failure(error))
+            }
+            continuation.invokeOnCancellation { manager.removeUpdates(listener) }
+        }
+    }
+}
+
+private fun distanceKm(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+    val earthRadiusKm = 6_371.0
+    val dLat = Math.toRadians(lat2 - lat1)
+    val dLon = Math.toRadians(lon2 - lon1)
+    val a = kotlin.math.sin(dLat / 2) * kotlin.math.sin(dLat / 2) +
+        kotlin.math.cos(Math.toRadians(lat1)) * kotlin.math.cos(Math.toRadians(lat2)) *
+        kotlin.math.sin(dLon / 2) * kotlin.math.sin(dLon / 2)
+    return earthRadiusKm * 2 * kotlin.math.atan2(kotlin.math.sqrt(a), kotlin.math.sqrt(1 - a))
 }

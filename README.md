@@ -96,3 +96,9 @@ Proyecto desarrollado como parte del proceso académico de **Desarrollo de Softw
 Proyecto
 
 Foodly — Descubre nuevos sabores cerca de ti.
+
+## Aplicación Android
+
+El proyecto de Android Studio está en la carpeta `mobile/`. Para abrirlo, selecciona esa carpeta desde **File → Open** en Android Studio, espera la sincronización de Gradle y pulsa **Run** con un emulador o teléfono conectado.
+
+Para probar el inicio de sesión, ejecuta el backend NestJS desde la raíz y configura sus variables en un archivo `.env` local. No publiques ese archivo ni compartas sus secretos. En un teléfono conectado por USB al mismo computador, usa `adb reverse tcp:3000 tcp:3000` para que la app de prueba alcance el backend local.

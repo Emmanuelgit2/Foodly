@@ -101,4 +101,6 @@ Foodly — Descubre nuevos sabores cerca de ti.
 
 El proyecto de Android Studio está en la carpeta `mobile/`. Para abrirlo, selecciona esa carpeta desde **File → Open** en Android Studio, espera la sincronización de Gradle y pulsa **Run** con un emulador o teléfono conectado.
 
-Para probar el inicio de sesión, ejecuta el backend NestJS desde la raíz y configura sus variables en un archivo `.env` local. No publiques ese archivo ni compartas sus secretos. En un teléfono conectado por USB al mismo computador, usa `adb reverse tcp:3000 tcp:3000` para que la app de prueba alcance el backend local.
+Para probar el inicio de sesión, ejecuta el backend NestJS desde la raíz. Copia `.env.example` a `.env` y configura MySQL, `JWT_SECRET`, el Client ID web de Google y las claves de Cloudflare Turnstile. No publiques el archivo `.env` ni compartas `TURNSTILE_SECRET`.
+
+La app usa `10.0.2.2:3000` en el emulador Android para llegar al backend del computador. En un teléfono conectado por USB, usa `adb reverse tcp:3000 tcp:3000`; la app del teléfono usa `127.0.0.1:3000`.

@@ -1,6 +1,7 @@
 package com.example.saborapp
 
 import android.content.Context
+import android.os.Build
 import android.webkit.CookieManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
@@ -21,7 +22,8 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import androidx.credentials.exceptions.NoCredentialException
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -30,21 +32,35 @@ import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 
-private const val FOODLY_API = "http://127.0.0.1:3000"
+private val FOODLY_API: String by lazy {
+    val isEmulator = Build.FINGERPRINT.startsWith("generic") ||
+        Build.FINGERPRINT.contains("emulator", ignoreCase = true) ||
+        Build.MODEL.contains("Emulator", ignoreCase = true) ||
+        Build.HARDWARE.contains("ranchu", ignoreCase = true) ||
+        Build.PRODUCT.contains("sdk", ignoreCase = true)
+
+    if (isEmulator) "http://10.0.2.2:3000" else "http://127.0.0.1:3000"
+}
 private const val GOOGLE_WEB_CLIENT_ID =
     "46704747268-c0vgolsbqbhh10b89en9cug1jc34utpe.apps.googleusercontent.com"
 
 suspend fun obtenerGoogleIdToken(context: Context): String {
-    val option = GetGoogleIdOption.Builder()
-        .setServerClientId(GOOGLE_WEB_CLIENT_ID)
-        .setFilterByAuthorizedAccounts(false)
-        .build()
-
+    // El botón usa directamente el flujo de selección de cuenta de Google.
+    // Evita primero intentar el selector de credenciales guardadas y esperar
+    // a que falle antes de mostrar la interfaz de inicio de sesión.
+    val option = GetSignInWithGoogleOption.Builder(GOOGLE_WEB_CLIENT_ID).build()
     val request = GetCredentialRequest.Builder()
         .addCredentialOption(option)
         .build()
 
-    val result = CredentialManager.create(context).getCredential(context, request)
+    val result = try {
+        CredentialManager.create(context).getCredential(context, request)
+    } catch (error: NoCredentialException) {
+        throw IOException(
+            "Google Play no encontró una cuenta en este dispositivo. Añade tu cuenta en Ajustes > Contraseñas y cuentas y actualiza Google Play services.",
+            error,
+        )
+    }
     val credential = result.credential
 
     if (credential is CustomCredential &&

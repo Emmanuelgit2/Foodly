@@ -1,4 +1,3 @@
-
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -13,25 +12,44 @@ export class Usuario {
   @PrimaryGeneratedColumn({ name: 'id_usuario' })
   id_usuario: number;
 
-  @Column({ length: 100 })
+  @Column({ type: 'varchar', length: 100 })
   nombre: string;
 
-  @Column({ length: 100, unique: true })
+  @Column({
+    type: 'varchar',
+    length: 100,
+    unique: true,
+  })
   correo: string;
 
-  @Column({ name: 'conrasena', length: 255 })
-  contrasena: string;
+  @Column({
+    name: 'conrasena',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+    select: false,
+  })
+  contrasena: string | null;
 
-  @Column({ length: 30, default: 'cliente' })
+  @Column({
+    type: 'varchar',
+    length: 30,
+    default: 'cliente',
+  })
   rol: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
-googleId: string;
+  @Column({
+    name: 'googleId',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+    unique: true,
+  })
+  googleId: string | null;
 
-// Asegúrate de que la contraseña sea opcional si el usuario inicia sesión con Google
-@Column({ type: 'varchar', length: 255, nullable: true })
-password?: string;
-
-  @OneToMany(() => Calificacion, (calificacion) => calificacion.usuario)
+  @OneToMany(
+    () => Calificacion,
+    (calificacion) => calificacion.usuario,
+  )
   calificaciones: Calificacion[];
 }

@@ -1,45 +1,124 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  InternalServerErrorException,
+} from '@nestjs/common';
+
 import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { OAuth2Client } from 'google-auth-library';
+
+import { Usuario } from '../entities/usuario.entity';
 
 @Injectable()
 export class AuthService {
-  constructor(private jwtService: JwtService) {}
+  private readonly googleClient = new OAuth2Client();
 
-  // 1. Primer paso de autenticación: Genera sesión temporal MFA
-  async login(user: any) {
-    const payload = { email: user.email, sub: user.id };
-    
-    return {
-      mfaRequired: true,
-      mfaSessionToken: this.jwtService.sign(payload, { expiresIn: '5m' }),
-      message: 'Credenciales válidas. Ingrese el código MFA de 6 dígitos enviado a su dispositivo.',
-    };
-  }
+  constructor(
+    private readonly jwtService: JwtService,
 
-  // 2. Segundo paso: Validación del código MFA para emitir el JWT definitivo
-  async verifyMFA(mfaSessionToken: string, code: string) {
+    @InjectRepository(Usuario)
+    private readonly usuarioRepository: Repository<Usuario>,
+  ) {}
+
+  async loginGoogle(credential: string) {
+    const googleClientId = process.env.GOOGLE_CLIENT_ID;
+
+    if (!googleClientId) {
+      throw new InternalServerErrorException(
+        'Falta configurar GOOGLE_CLIENT_ID en el backend.',
+      );
+    }
+
+    let payload;
+
     try {
-      const payload = this.jwtService.verify(mfaSessionToken);
-      
-      // Simulación de validación de código MFA (e.g. '123456' o '654321')
-      if (code !== '123456' && code !== '000000') {
-        throw new UnauthorizedException('Código MFA inválido o expirado.');
+      const ticket = await this.googleClient.verifyIdToken({
+        idToken: credential,
+        audience: googleClientId,
+      });
+
+      payload = ticket.getPayload();
+    } catch {
+      throw new UnauthorizedException(
+        'La credencial de Google no es válida o ha expirado.',
+      );
+    }
+
+    if (
+      !payload ||
+      !payload.sub ||
+      !payload.email ||
+      payload.email_verified !== true
+    ) {
+      throw new UnauthorizedException(
+        'No fue posible verificar la cuenta de Google.',
+      );
+    }
+
+    const googleId = payload.sub;
+    const correo = payload.email.toLowerCase();
+    const nombre = payload.name || correo.split('@')[0];
+
+    let usuario = await this.usuarioRepository.findOne({
+      where: { googleId },
+    });
+
+    if (!usuario) {
+      const usuarioConCorreo =
+        await this.usuarioRepository.findOne({
+          where: { correo },
+        });
+
+      if (usuarioConCorreo) {
+        throw new UnauthorizedException(
+          'Este correo ya está registrado. Inicia sesión con el método que usaste al registrarte.',
+        );
       }
 
-      // Generación del Access Token JWT final para consumir endpoints protegidos
-      const accessToken = this.jwtService.sign(
-        { email: payload.email, sub: payload.sub, mfaAuthenticated: true },
-        { expiresIn: '1h' },
-      );
+      usuario = this.usuarioRepository.create({
+        nombre,
+        correo,
+        googleId,
+        contrasena: null,
+        rol: 'cliente',
+      });
 
-      return {
-        access_token: accessToken,
-        token_type: 'Bearer',
-        expires_in: 3600,
-        user: { email: payload.email },
-      };
-    } catch (error) {
-      throw new UnauthorizedException('Sesión MFA inválida o token expirado.');
+      try {
+        usuario = await this.usuarioRepository.save(usuario);
+      } catch {
+        // Puede ocurrir si dos solicitudes crean la misma cuenta a la vez.
+        const usuarioExistente =
+          await this.usuarioRepository.findOne({
+            where: { googleId },
+          });
+
+        if (!usuarioExistente) {
+          throw new InternalServerErrorException(
+            'No fue posible guardar la cuenta. Comprueba la estructura de la tabla usuarios.',
+          );
+        }
+
+        usuario = usuarioExistente;
+      }
     }
+
+    const accessToken = await this.jwtService.signAsync({
+      sub: usuario.id_usuario,
+      correo: usuario.correo,
+      rol: usuario.rol,
+    });
+
+    return {
+      access_token: accessToken,
+      token_type: 'Bearer',
+      user: {
+        id: usuario.id_usuario,
+        nombre: usuario.nombre,
+        correo: usuario.correo,
+        rol: usuario.rol,
+      },
+    };
   }
 }

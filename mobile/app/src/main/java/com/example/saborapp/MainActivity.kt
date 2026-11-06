@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeout
@@ -321,8 +322,13 @@ fun FoodlyRoot(darkMode: Boolean, onToggleDarkMode: () -> Unit) {
                             isSigningIn = true
                             message = ""
                             try {
+                                // Trae la clave pública mientras Google muestra
+                                // la selección de cuenta, quitando una espera secuencial.
+                                val siteKeyRequest = async {
+                                    runCatching { obtenerTurnstileSiteKey() }
+                                }
                                 pendingGoogleCredential = obtenerGoogleIdToken(context)
-                                turnstileSiteKey = obtenerTurnstileSiteKey()
+                                turnstileSiteKey = siteKeyRequest.await().getOrThrow()
                                 showCaptcha = true
                             } catch (error: Exception) {
                                 message = error.message
